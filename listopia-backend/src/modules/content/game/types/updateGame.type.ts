@@ -17,6 +17,7 @@ export type UpdateGameType = {
   franchise_ids?: number[];
   cast?: UpdateCastType[];
   links?: Record<string, string>;
+  translations: Record<string, string>;
 };
 
 export type UpdateGameTypeWithoutId = Omit<UpdateGameType, 'id'>;

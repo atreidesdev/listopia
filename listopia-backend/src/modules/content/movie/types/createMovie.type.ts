@@ -19,4 +19,5 @@ export type CreateMovieType = {
   franchise_ids?: number[];
   cast?: CreateCastDataWithoutId[];
   links?: Record<string, string>;
+  translations: Record<string, string>;
 };

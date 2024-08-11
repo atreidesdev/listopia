@@ -83,6 +83,8 @@ export class GameService {
       cast,
       status,
       ageRating,
+      links,
+      translations,
     } = createGameData;
 
     let posterPath = '';
@@ -102,6 +104,8 @@ export class GameService {
         release: release,
         status: status,
         ageRating: ageRating,
+        links,
+        translations,
         developers: {
           connect: developers_ids.map((id) => ({ id })),
         },
@@ -150,6 +154,8 @@ export class GameService {
       cast,
       status,
       ageRating,
+      links,
+      translations,
     } = updateGameData;
 
     const existingGame = await this.prisma.game.findUnique({ where: { id } });
@@ -174,6 +180,8 @@ export class GameService {
       status,
       ageRating,
       posterPath,
+      links,
+      translations,
       developers: developers_ids,
       publishers: publishers_ids,
       platforms: platforms_ids,

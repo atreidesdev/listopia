@@ -87,6 +87,7 @@ export class MovieService {
       duration,
       ageRating,
       links,
+      translations,
     } = createMovieData;
 
     let posterPath = '';
@@ -111,6 +112,7 @@ export class MovieService {
         isSeries: isSeries,
         seriesCount: seriesCount,
         links: links,
+        translations: translations,
         directors: {
           connect: directors_ids.map((id) => ({ id })),
         },
@@ -160,6 +162,7 @@ export class MovieService {
       duration,
       ageRating,
       links,
+      translations,
     } = updateMovieData;
 
     const existingMovie = await this.prisma.movie.findUnique({ where: { id } });
@@ -189,6 +192,7 @@ export class MovieService {
       seriesCount,
       links,
       posterPath,
+      translations,
       directors: directors_ids,
       studios: studios_ids,
       themes: themes_ids,

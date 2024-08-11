@@ -15,4 +15,5 @@ export type CreateBookType = {
   franchise_ids?: number[];
   cast?: CreateCastDataWithoutId[];
   links?: Record<string, string>;
+  translations: Record<string, string>;
 };

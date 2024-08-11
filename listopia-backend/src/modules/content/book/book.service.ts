@@ -83,6 +83,7 @@ export class BookService {
       readingHoursCount,
       ageRating,
       links,
+      translations,
     } = createBookData;
 
     let posterPath = '';
@@ -104,6 +105,7 @@ export class BookService {
         readingHoursCount: readingHoursCount,
         ageRating: ageRating,
         links: links,
+        translations: translations,
         authors: {
           connect: authors_ids.map((id) => ({ id })),
         },
@@ -146,6 +148,7 @@ export class BookService {
       readingHoursCount,
       ageRating,
       links,
+      translations,
     } = updateBookData;
 
     const existingBook = await this.prisma.book.findUnique({ where: { id } });
@@ -172,6 +175,7 @@ export class BookService {
       ageRating,
       links,
       posterPath,
+      translations,
       authors: authors_ids,
       themes: themes_ids,
       genres: genres_ids,
