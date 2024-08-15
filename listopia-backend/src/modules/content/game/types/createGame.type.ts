@@ -1,6 +1,11 @@
 import { CreateCastDataWithoutId } from '@modules/content/cast/types/createCast.type';
 import { AgeRating, GameStatus } from '@prisma/client';
 
+export type GameTranslationType = {
+  title: string;
+  description?: string;
+};
+
 export type CreateGameType = {
   title: string;
   description?: string;
@@ -16,5 +21,5 @@ export type CreateGameType = {
   franchise_ids?: number[];
   cast?: CreateCastDataWithoutId[];
   links?: Record<string, string>;
-  translations: Record<string, string>;
+  translations?: Record<string, GameTranslationType>;
 };

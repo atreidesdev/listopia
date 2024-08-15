@@ -27,14 +27,18 @@ export class BookController {
   @Get(':id')
   async getBook(
     @Param('id') id: number,
+    @Query('lang') lang: string,
     @CurrentUser() user: UserPayload,
   ): Promise<Book> {
-    return this.bookService.getBook(id, user?.id);
+    return this.bookService.getBook({ id, userId: user?.id, lang });
   }
 
   @Get()
-  async getBooks(@Query() getBooksData: GetBooksType): Promise<Book[]> {
-    return this.bookService.getBooks(getBooksData);
+  async getBooks(
+    @Query() getBooksData: GetBooksType,
+    @Query('lang') lang?: string,
+  ): Promise<Book[]> {
+    return this.bookService.getBooks({ ...getBooksData, lang });
   }
 
   @UseGuards(RolesGuard)

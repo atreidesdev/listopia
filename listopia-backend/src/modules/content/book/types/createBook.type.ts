@@ -1,6 +1,11 @@
 import { CreateCastDataWithoutId } from '@modules/content/cast/types/createCast.type';
 import { AgeRating, BookStatus } from '@prisma/client';
 
+export type BookTranslationType = {
+  title: string;
+  description?: string;
+};
+
 export type CreateBookType = {
   title: string;
   description?: string;
@@ -15,5 +20,5 @@ export type CreateBookType = {
   franchise_ids?: number[];
   cast?: CreateCastDataWithoutId[];
   links?: Record<string, string>;
-  translations: Record<string, string>;
+  translations?: Record<string, BookTranslationType>;
 };

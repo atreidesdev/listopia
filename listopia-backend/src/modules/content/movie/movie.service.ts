@@ -3,7 +3,8 @@ import { createUpdateData } from '@common/utils/updateData.util';
 import { CastService } from '@modules/content/cast/cast.service';
 import { FranchiseService } from '@modules/content/franchise/franchise.service';
 import type { CreateMovieType } from '@modules/content/movie/types/createMovie.type';
-import type { GetMoviesType } from '@modules/content/movie/types/getMovies.type';
+import { GetMovieWithTranslationType } from '@modules/content/movie/types/getMovie.type';
+import type { GetMoviesWithTranslationType } from '@modules/content/movie/types/getMovies.type';
 import type { UpdateMovieType } from '@modules/content/movie/types/updateMovie.type';
 import { Injectable } from '@nestjs/common';
 import { Movie, MovieListItem, Prisma } from '@prisma/client';
@@ -19,30 +20,54 @@ export class MovieService {
   ) {}
 
   async getMovie(
-    id: number,
-    userId?: number,
+    getMovieData: GetMovieWithTranslationType,
   ): Promise<Movie & { movieListItem?: MovieListItem }> {
+    const { id, userId, lang = 'ru' } = getMovieData;
+
     const existingMovie = await this.prisma.movie.findUnique({
-      where: { id: id },
+      where: { id },
     });
 
     if (!existingMovie) {
       throw new Error('Movie not found');
     }
 
+    const translations = existingMovie.translations || {};
+    const translatedMovie = {
+      ...existingMovie,
+      title:
+        lang === 'ru'
+          ? existingMovie.title
+          : translations[lang]?.title || existingMovie.title,
+      description:
+        lang === 'ru'
+          ? existingMovie.description
+          : translations[lang]?.description || existingMovie.description,
+      translations: lang === 'ru' ? existingMovie.translations : undefined,
+    };
+
     if (userId) {
       const movieListItem = await this.prisma.movieListItem.findUnique({
         where: { userId_movieId: { userId, movieId: id } },
       });
-      return { ...existingMovie, movieListItem };
+      return { ...translatedMovie, movieListItem };
     }
 
-    return existingMovie;
+    return translatedMovie;
   }
 
-  async getMovies(getMoviesData: GetMoviesType): Promise<Movie[]> {
-    const { page, pageSize, sortField, sortOrder, genreIds, themeIds } =
-      getMoviesData;
+  async getMovies(
+    getMoviesData: GetMoviesWithTranslationType,
+  ): Promise<Movie[]> {
+    const {
+      page,
+      pageSize,
+      sortField,
+      sortOrder,
+      genreIds,
+      themeIds,
+      lang = 'ru',
+    } = getMoviesData;
 
     const skip = (page - 1) * pageSize;
     const take = pageSize;
@@ -55,7 +80,7 @@ export class MovieService {
       orderBy = { [sortField]: sortOrder };
     }
 
-    return this.prisma.movie.findMany({
+    const movies = await this.prisma.movie.findMany({
       skip,
       take,
       orderBy,
@@ -66,6 +91,18 @@ export class MovieService {
         ],
       },
     });
+
+    return movies.map((movie) => ({
+      ...movie,
+      title:
+        lang === 'ru'
+          ? movie.title
+          : (movie.translations || {})[lang]?.title || movie.title,
+      description:
+        lang === 'ru'
+          ? movie.description
+          : (movie.translations || {})[lang]?.description || movie.description,
+    }));
   }
 
   async createMovie(createMovieData: CreateMovieType): Promise<Movie> {

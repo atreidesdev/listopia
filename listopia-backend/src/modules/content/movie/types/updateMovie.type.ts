@@ -1,4 +1,5 @@
 import { UpdateCastType } from '@modules/content/cast/types/updateCast.type';
+import { MovieTranslationType } from '@modules/content/movie/types/createMovie.type';
 import { AgeRating, MovieStatus, MovieType } from '@prisma/client';
 
 export type UpdateMovieType = {
@@ -20,7 +21,7 @@ export type UpdateMovieType = {
   franchise_ids?: number[];
   cast?: UpdateCastType[];
   links?: Record<string, string>;
-  translations: Record<string, string>;
+  translations?: Record<string, MovieTranslationType>;
 };
 
 export type UpdateMovieTypeWithoutId = Omit<UpdateMovieType, 'id'>;

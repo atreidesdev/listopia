@@ -28,13 +28,17 @@ export class MovieController {
   async getMovie(
     @Param('id') id: number,
     @CurrentUser() user: UserPayload,
+    @Query('lang') lang?: string,
   ): Promise<Movie> {
-    return this.movieService.getMovie(id, user?.id);
+    return this.movieService.getMovie({ id, userId: user?.id, lang });
   }
 
   @Get()
-  async getMovies(@Query() getMoviesData: GetMoviesType): Promise<Movie[]> {
-    return this.movieService.getMovies(getMoviesData);
+  async getMovies(
+    @Query() getMoviesData: GetMoviesType,
+    @Query('lang') lang?: string,
+  ): Promise<Movie[]> {
+    return this.movieService.getMovies({ ...getMoviesData, lang });
   }
 
   @UseGuards(RolesGuard)

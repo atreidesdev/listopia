@@ -5,4 +5,9 @@ export type GetBooksType = {
   sortOrder?: 'asc' | 'desc';
   genreIds?: number[];
   themeIds?: number[];
+  lang?: string;
+};
+
+export type GetBooksWithTranslationType = GetBooksType & {
+  lang?: string;
 };

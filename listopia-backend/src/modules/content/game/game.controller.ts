@@ -28,13 +28,17 @@ export class GameController {
   async getGame(
     @Param('id') id: number,
     @CurrentUser() user: UserPayload,
+    @Query('lang') lang?: string,
   ): Promise<Game> {
-    return this.gameService.getGame(id, user?.id);
+    return this.gameService.getGame({ id, userId: user?.id, lang });
   }
 
   @Get()
-  async getGames(@Query() getGamesData: GetGamesType): Promise<Game[]> {
-    return this.gameService.getGames(getGamesData);
+  async getGames(
+    @Query() getGamesData: GetGamesType,
+    @Query('lang') lang?: string,
+  ): Promise<Game[]> {
+    return this.gameService.getGames({ ...getGamesData, lang });
   }
 
   @UseGuards(RolesGuard)

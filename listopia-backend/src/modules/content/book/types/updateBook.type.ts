@@ -1,3 +1,4 @@
+import { BookTranslationType } from '@modules/content/book/types/createBook.type';
 import { UpdateCastType } from '@modules/content/cast/types/updateCast.type';
 import { AgeRating, BookStatus } from '@prisma/client';
 
@@ -16,7 +17,7 @@ export type UpdateBookType = {
   franchise_ids?: number[];
   cast?: UpdateCastType[];
   links?: Record<string, string>;
-  translations: Record<string, string>;
+  translations?: Record<string, BookTranslationType>;
 };
 
 export type UpdateBookTypeWithoutId = Omit<UpdateBookType, 'id'>;

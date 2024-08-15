@@ -1,7 +1,8 @@
 import { FileUtil } from '@common/utils/file.util';
 import { createUpdateData } from '@common/utils/updateData.util';
 import type { CreateBookType } from '@modules/content/book/types/createBook.type';
-import type { GetBooksType } from '@modules/content/book/types/getBooks.type';
+import { GetBookWithTranslationType } from '@modules/content/book/types/getBook.type';
+import type { GetBooksWithTranslationType } from '@modules/content/book/types/getBooks.type';
 import type { UpdateBookType } from '@modules/content/book/types/updateBook.type';
 import { CastService } from '@modules/content/cast/cast.service';
 import { FranchiseService } from '@modules/content/franchise/franchise.service';
@@ -19,9 +20,10 @@ export class BookService {
   ) {}
 
   async getBook(
-    id: number,
-    userId?: number,
+    getBookData: GetBookWithTranslationType,
   ): Promise<Book & { bookListItem?: BookListItem }> {
+    const { id, userId, lang = 'ru' } = getBookData;
+
     const existingBook = await this.prisma.book.findUnique({
       where: { id },
     });
@@ -30,19 +32,39 @@ export class BookService {
       throw new Error('Book not found');
     }
 
+    const translations = existingBook.translations || {};
+    const translatedBook = {
+      ...existingBook,
+      title:
+        lang === 'ru'
+          ? existingBook.title
+          : translations[lang]?.title || existingBook.title,
+      description:
+        lang === 'ru'
+          ? existingBook.description
+          : translations[lang]?.description || existingBook.description,
+    };
+
     if (userId) {
       const bookListItem = await this.prisma.bookListItem.findUnique({
         where: { userId_bookId: { userId, bookId: id } },
       });
-      return { ...existingBook, bookListItem };
+      return { ...translatedBook, bookListItem };
     }
 
-    return existingBook;
+    return translatedBook;
   }
 
-  async getBooks(getBooksData: GetBooksType): Promise<Book[]> {
-    const { page, pageSize, sortField, sortOrder, genreIds, themeIds } =
-      getBooksData;
+  async getBooks(getBooksData: GetBooksWithTranslationType): Promise<Book[]> {
+    const {
+      page,
+      pageSize,
+      sortField,
+      sortOrder,
+      genreIds,
+      themeIds,
+      lang = 'ru',
+    } = getBooksData;
 
     const skip = (page - 1) * pageSize;
     const take = pageSize;
@@ -55,7 +77,7 @@ export class BookService {
       orderBy = { [sortField]: sortOrder };
     }
 
-    return this.prisma.book.findMany({
+    const books = await this.prisma.book.findMany({
       skip,
       take,
       orderBy,
@@ -66,6 +88,18 @@ export class BookService {
         ],
       },
     });
+
+    return books.map((book) => ({
+      ...book,
+      title:
+        lang === 'ru'
+          ? book.title
+          : (book.translations || {})[lang]?.title || book.title,
+      description:
+        lang === 'ru'
+          ? book.description
+          : (book.translations || {})[lang]?.description || book.description,
+    }));
   }
 
   async createBook(createBookData: CreateBookType): Promise<Book> {
