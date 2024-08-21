@@ -119,6 +119,8 @@ model User {
   profileName  String
   role         UserRole @default(Standard)
 
+  loginAttempts LoginAttempt[]
+
   friends                User[]            @relation("Friendship")
   friendOf               User[]            @relation("Friendship")
   friendRequests         FriendRequest[]   @relation("FriendRequests")
@@ -140,6 +142,20 @@ model User {
   sentDirectMessages     DirectMessage[]   @relation("SentDirectMessages")
   receivedDirectMessages DirectMessage[]   @relation("ReceivedDirectMessages")
   sentChatMessages       ChatMessage[]     @relation("SentChatMessages")
+}
+
+model LoginAttempt {
+  id              Int       @id @default(autoincrement())
+  ipAddress       String
+  attemptCount    Int       @default(0)
+  lastAttemptTime DateTime  @default(now())
+  blockEndTime    DateTime?
+  lockMultiplier  Int       @default(1)
+
+  userId Int
+  user   User @relation(fields: [userId], references: [id])
+
+  @@index([ipAddress])
 }
 
 model RefreshToken {
