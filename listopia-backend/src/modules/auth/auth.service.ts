@@ -3,7 +3,7 @@ import type { LogoutType } from '@modules/auth/types/logout.type';
 import type { RefreshTokenType } from '@modules/auth/types/refresh-token.type';
 import type { RegisterType } from '@modules/auth/types/register.type';
 import type { UserPayload } from '@modules/auth/types/user-payload.type';
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { User } from '@prisma/client';
 import { PrismaService } from '@prismaPath/prisma.service';
@@ -48,7 +48,7 @@ export class AuthService {
     };
     const refreshToken = uuidv4();
     const expiresAt = new Date();
-    expiresAt.setDate(expiresAt.getDate() + 7);
+    expiresAt.setDate(expiresAt.getDate() + 30);
 
     await this.prisma.refreshToken.create({
       data: {
@@ -87,42 +87,51 @@ export class AuthService {
 
   async refreshToken(refreshTokenData: RefreshTokenType) {
     const { refreshToken } = refreshTokenData;
+
     const token = await this.prisma.refreshToken.findUnique({
       where: { token: refreshToken },
     });
-    if (!token || !token.active || token.expiresAt < new Date()) {
-      throw new Error('Invalid refresh token');
-    }
 
-    await this.prisma.refreshToken.update({
-      where: { token: refreshToken },
-      data: { active: false },
-    });
+    if (!token || !token.active || token.expiresAt < new Date()) {
+      throw new UnauthorizedException('Invalid or expired refresh token');
+    }
 
     const newRefreshToken = uuidv4();
     const expiresAt = new Date();
-    expiresAt.setDate(expiresAt.getDate() + 7);
+    expiresAt.setDate(expiresAt.getDate() + 30);
 
-    await this.prisma.refreshToken.create({
-      data: {
-        token: newRefreshToken,
-        userId: token.userId,
-        expiresAt,
-        active: true,
-      },
+    await this.prisma.$transaction(async (prisma) => {
+      await prisma.refreshToken.update({
+        where: { token: refreshToken },
+        data: { active: false },
+      });
+
+      await prisma.refreshToken.create({
+        data: {
+          token: newRefreshToken,
+          userId: token.userId,
+          expiresAt,
+          active: true,
+        },
+      });
     });
 
     const user = await this.prisma.user.findUnique({
       where: { id: token.userId },
     });
+
     if (!user) {
-      throw new Error('User not found');
+      throw new UnauthorizedException('User not found');
     }
+
     const payload: UserPayload = {
       id: user.id,
       username: user.username,
       role: user.role,
+      ...(user.avatarPath && { avatar: user.avatarPath }),
+      ...(user.profileName && { profileName: user.profileName }),
     };
+
     return {
       access_token: this.jwtService.sign(payload),
       refresh_token: newRefreshToken,

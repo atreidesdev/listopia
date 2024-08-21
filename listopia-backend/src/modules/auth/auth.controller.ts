@@ -20,7 +20,6 @@ export class AuthController {
     return this.authService.register(registerData);
   }
 
-  @UseGuards(JwtAuthGuard)
   @Post('refresh-token')
   async refreshToken(@Body() refreshTokenData: RefreshTokenType) {
     return this.authService.refreshToken(refreshTokenData);
