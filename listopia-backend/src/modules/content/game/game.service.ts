@@ -162,7 +162,7 @@ export class GameService {
     await this.franchiseService.addToFranchises({
       franchiseIds: franchise_ids,
       contentId: game.id,
-      contentType: 'GAME',
+      genreType: 'game',
     });
 
     if (cast && cast.length > 0) {

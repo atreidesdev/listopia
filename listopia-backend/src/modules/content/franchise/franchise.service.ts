@@ -151,7 +151,7 @@ export class FranchiseService {
   async addToFranchise(
     FranchiseItemData: Omit<FranchiseItemType, 'id'>,
   ): Promise<BookFranchise | MovieFranchise | GameFranchise> {
-    const { franchiseId, contentType, contentId } = FranchiseItemData;
+    const { franchiseId, genreType, contentId } = FranchiseItemData;
 
     const existingFranchise = await this.prisma.franchise.findUnique({
       where: { id: franchiseId },
@@ -161,8 +161,8 @@ export class FranchiseService {
       throw new Error('Franchise not found');
     }
 
-    switch (contentType) {
-      case 'BOOK':
+    switch (genreType) {
+      case 'book':
         const book = await this.prisma.book.findUnique({
           where: { id: contentId },
         });
@@ -177,7 +177,7 @@ export class FranchiseService {
           throw new Error(`Book with ID ${contentId} not found`);
         }
 
-      case 'MOVIE':
+      case 'movie':
         const movie = await this.prisma.movie.findUnique({
           where: { id: contentId },
         });
@@ -192,7 +192,7 @@ export class FranchiseService {
           throw new Error(`Movie with ID ${contentId} not found`);
         }
 
-      case 'GAME':
+      case 'game':
         const game = await this.prisma.game.findUnique({
           where: { id: contentId },
         });
@@ -215,7 +215,7 @@ export class FranchiseService {
   async addToFranchises(
     addToFranchisesData: AddToFranchisesType,
   ): Promise<void> {
-    const { franchiseIds, contentType, contentId } = addToFranchisesData;
+    const { franchiseIds, genreType, contentId } = addToFranchisesData;
 
     const validFranchiseIds = await this.getValidFranchises(franchiseIds);
 
@@ -224,22 +224,22 @@ export class FranchiseService {
     }
 
     const createRelationPromises = validFranchiseIds.map((franchiseId) => {
-      switch (contentType) {
-        case 'BOOK':
+      switch (genreType) {
+        case 'book':
           return this.prisma.bookFranchise.create({
             data: {
               franchiseId: franchiseId,
               bookId: contentId,
             },
           });
-        case 'MOVIE':
+        case 'movie':
           return this.prisma.movieFranchise.create({
             data: {
               franchiseId: franchiseId,
               movieId: contentId,
             },
           });
-        case 'GAME':
+        case 'game':
           return this.prisma.gameFranchise.create({
             data: {
               franchiseId: franchiseId,
@@ -257,10 +257,10 @@ export class FranchiseService {
   async deleteFromFranchise(
     deleteFromFranchiseData: FranchiseItemType,
   ): Promise<BookFranchise | MovieFranchise | GameFranchise> {
-    const { franchiseId, contentType, contentId } = deleteFromFranchiseData;
+    const { franchiseId, genreType, contentId } = deleteFromFranchiseData;
 
-    switch (contentType) {
-      case 'BOOK':
+    switch (genreType) {
+      case 'book':
         return this.prisma.bookFranchise.delete({
           where: {
             franchiseId_bookId: {
@@ -269,7 +269,7 @@ export class FranchiseService {
             },
           },
         });
-      case 'MOVIE':
+      case 'movie':
         return this.prisma.movieFranchise.delete({
           where: {
             franchiseId_movieId: {
@@ -278,7 +278,7 @@ export class FranchiseService {
             },
           },
         });
-      case 'GAME':
+      case 'game':
         return this.prisma.gameFranchise.delete({
           where: {
             franchiseId_gameId: {

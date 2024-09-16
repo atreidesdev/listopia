@@ -155,7 +155,7 @@ export class BookService {
     await this.franchiseService.addToFranchises({
       franchiseIds: franchise_ids,
       contentId: book.id,
-      contentType: 'BOOK',
+      genreType: 'book',
     });
 
     if (cast && cast.length > 0) {

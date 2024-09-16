@@ -1,15 +1,21 @@
 import { Injectable } from '@nestjs/common';
 import { Cron } from '@nestjs/schedule';
 import {
-  BookListItem,
-  ContentType,
-  GameListItem,
-  MovieListItem,
+  BookListItemRating,
+  GameListItemRating,
+  GenreType,
+  MovieListItemRating,
 } from '@prisma/client';
 import { PrismaService } from '@prismaPath/prisma.service';
 
-type ListItem = BookListItem | MovieListItem | GameListItem;
-type ListItemModel = 'bookListItem' | 'movieListItem' | 'gameListItem';
+type ListItemRating =
+  | BookListItemRating
+  | MovieListItemRating
+  | GameListItemRating;
+type RatingModel =
+  | 'bookListItemRating'
+  | 'movieListItemRating'
+  | 'gameListItemRating';
 type ItemModel = 'book' | 'movie' | 'game';
 
 @Injectable()
@@ -18,35 +24,35 @@ export class AverageRatingService {
 
   @Cron('0 0 * * 6')
   async updateBooksRatings() {
-    await this.updateRatingsForListItems(ContentType.BOOK);
+    await this.updateRatingsForListItems(GenreType.book);
   }
 
   @Cron('0 0 * * 5')
   async updateMovieRatings() {
-    await this.updateRatingsForListItems(ContentType.MOVIE);
+    await this.updateRatingsForListItems(GenreType.movie);
   }
 
   @Cron('0 0 * * 4')
   async updateGameRatings() {
-    await this.updateRatingsForListItems(ContentType.GAME);
+    await this.updateRatingsForListItems(GenreType.game);
   }
 
-  async runManualUpdate(contentType: ContentType) {
-    if (contentType === ContentType.BOOK) {
+  async runManualUpdate(genreType: GenreType) {
+    if (genreType === GenreType.book) {
       await this.updateBooksRatings();
-    } else if (contentType === ContentType.MOVIE) {
+    } else if (genreType === GenreType.movie) {
       await this.updateMovieRatings();
-    } else if (contentType === ContentType.GAME) {
+    } else if (genreType === GenreType.game) {
       await this.updateGameRatings();
     }
   }
 
-  private async updateRatingsForListItems(contentType: ContentType) {
-    const listItemModel = this.getListItemModel(contentType);
-    const itemModel = this.getItemModel(contentType);
-    const itemIdField = this.getItemIdField(contentType);
+  private async updateRatingsForListItems(genreType: GenreType) {
+    const listItemModel = this.getRatingModel(genreType);
+    const itemModel = this.getItemModel(genreType);
+    const itemIdField = this.getItemIdField(genreType);
 
-    const listItems = await this.findListItems(listItemModel);
+    const listItems = await this.findListItemRatings(listItemModel);
 
     const ratingMap = new Map<number, { totalRating: number; count: number }>();
 
@@ -70,22 +76,24 @@ export class AverageRatingService {
     }
   }
 
-  private async findListItems(model: ListItemModel): Promise<ListItem[]> {
+  private async findListItemRatings(
+    model: RatingModel,
+  ): Promise<ListItemRating[]> {
     switch (model) {
-      case 'bookListItem':
-        return this.prisma.bookListItem.findMany({
+      case 'bookListItemRating':
+        return this.prisma.bookListItemRating.findMany({
           where: { rating: { not: null } },
         });
-      case 'movieListItem':
-        return this.prisma.movieListItem.findMany({
+      case 'movieListItemRating':
+        return this.prisma.movieListItemRating.findMany({
           where: { rating: { not: null } },
         });
-      case 'gameListItem':
-        return this.prisma.gameListItem.findMany({
+      case 'gameListItemRating':
+        return this.prisma.gameListItemRating.findMany({
           where: { rating: { not: null } },
         });
       default:
-        throw new Error(`Unknown list item model: ${model}`);
+        throw new Error(`Unknown rating model: ${model}`);
     }
   }
 
@@ -114,44 +122,44 @@ export class AverageRatingService {
     }
   }
 
-  private getListItemModel(contentType: ContentType): ListItemModel {
-    switch (contentType) {
-      case ContentType.BOOK:
-        return 'bookListItem';
-      case ContentType.MOVIE:
-        return 'movieListItem';
-      case ContentType.GAME:
-        return 'gameListItem';
+  private getRatingModel(genreType: GenreType): RatingModel {
+    switch (genreType) {
+      case GenreType.book:
+        return 'bookListItemRating';
+      case GenreType.movie:
+        return 'movieListItemRating';
+      case GenreType.game:
+        return 'gameListItemRating';
       default:
-        throw new Error(`Unknown content type: ${contentType}`);
+        throw new Error(`Unknown content type: ${genreType}`);
     }
   }
 
-  private getItemModel(contentType: ContentType): ItemModel {
-    switch (contentType) {
-      case ContentType.BOOK:
+  private getItemModel(genreType: GenreType): ItemModel {
+    switch (genreType) {
+      case GenreType.book:
         return 'book';
-      case ContentType.MOVIE:
+      case GenreType.movie:
         return 'movie';
-      case ContentType.GAME:
+      case GenreType.game:
         return 'game';
       default:
-        throw new Error(`Unknown content type: ${contentType}`);
+        throw new Error(`Unknown content type: ${genreType}`);
     }
   }
 
   private getItemIdField(
-    contentType: ContentType,
+    genreType: GenreType,
   ): 'bookId' | 'movieId' | 'gameId' {
-    switch (contentType) {
-      case ContentType.BOOK:
+    switch (genreType) {
+      case GenreType.book:
         return 'bookId';
-      case ContentType.MOVIE:
+      case GenreType.movie:
         return 'movieId';
-      case ContentType.GAME:
+      case GenreType.game:
         return 'gameId';
       default:
-        throw new Error(`Unknown content type: ${contentType}`);
+        throw new Error(`Unknown content type: ${genreType}`);
     }
   }
 }

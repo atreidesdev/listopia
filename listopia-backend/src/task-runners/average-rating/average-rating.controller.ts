@@ -7,22 +7,22 @@ import {
   Post,
   UseGuards,
 } from '@nestjs/common';
-import { ContentType } from '@prisma/client';
+import { GenreType } from '@prisma/client';
 import { AverageRatingService } from './average-rating.service';
 
 @Controller('average-rating')
 export class AverageRatingController {
   constructor(private readonly averageRatingService: AverageRatingService) {}
 
-  @Post(':contentType')
+  @Post(':genreType')
   @UseGuards(RolesGuard)
-  @Roles('Admin', 'Developer')
-  async runManualUpdate(@Param('contentType') contentType: ContentType) {
-    if (!Object.values(ContentType).includes(contentType)) {
-      throw new BadRequestException(`Invalid content type: ${contentType}`);
+  @Roles('admin', 'developer')
+  async runManualUpdate(@Param('genreType') genreType: GenreType) {
+    if (!Object.values(GenreType).includes(genreType)) {
+      throw new BadRequestException(`Invalid content type: ${genreType}`);
     }
 
-    await this.averageRatingService.runManualUpdate(contentType);
+    await this.averageRatingService.runManualUpdate(genreType);
     return { message: 'Ratings updated successfully' };
   }
 }

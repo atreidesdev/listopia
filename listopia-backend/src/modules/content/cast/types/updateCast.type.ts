@@ -1,4 +1,4 @@
-import { ContentType, RoleType } from '@prisma/client';
+import { GenreType, RoleType } from '@prisma/client';
 
 export type UpdateCastType = {
   id: number;
@@ -6,7 +6,7 @@ export type UpdateCastType = {
   roleActor?: string;
   rolePhoto?: Express.Multer.File;
   roleType?: RoleType;
-  contentType: ContentType;
+  genreType: GenreType;
   contentId: number;
   characterId?: number;
   actorId?: number;

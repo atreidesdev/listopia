@@ -18,7 +18,7 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
-import { BookCast, ContentType, GameCast, MovieCast } from '@prisma/client';
+import { BookCast, GameCast, GenreType, MovieCast } from '@prisma/client';
 import { CastService } from './cast.service';
 
 @Controller('casts')
@@ -33,7 +33,7 @@ export class CastController {
   }
 
   @UseGuards(RolesGuard)
-  @Roles('Admin', 'Developer', 'Editor')
+  @Roles('admin', 'developer', 'editor')
   @Post()
   async createCast(
     @Body() createCastData: CreateCastType,
@@ -42,7 +42,7 @@ export class CastController {
   }
 
   @UseGuards(RolesGuard)
-  @Roles('Admin', 'Developer', 'Editor')
+  @Roles('admin', 'developer', 'editor')
   @Post('array')
   async createCastByArray(
     @Body() createCastDatas: CreateCastType[],
@@ -51,7 +51,7 @@ export class CastController {
   }
 
   @UseGuards(RolesGuard)
-  @Roles('Admin', 'Developer', 'Editor')
+  @Roles('admin', 'developer', 'editor')
   @Put(':id')
   async updateCast(
     @Body() updateCastData: UpdateCastDataWithoutId,
@@ -61,7 +61,7 @@ export class CastController {
   }
 
   @UseGuards(RolesGuard)
-  @Roles('Admin', 'Developer', 'Editor')
+  @Roles('admin', 'developer', 'editor')
   @Put('array')
   async updateCasts(
     @Body() updateCastsData: UpdateCastType[],
@@ -70,12 +70,12 @@ export class CastController {
   }
 
   @UseGuards(RolesGuard)
-  @Roles('Admin', 'Developer', 'Editor')
-  @Delete(':contentType/:id')
+  @Roles('admin', 'developer', 'editor')
+  @Delete(':genreType/:id')
   async deleteCast(
     @Param('id') id: number,
-    @Param('contentType') contentType: ContentType,
+    @Param('genreType') genreType: GenreType,
   ): Promise<BookCast | MovieCast | GameCast> {
-    return this.castService.deleteCast({ id: id, contentType: contentType });
+    return this.castService.deleteCast({ id: id, genreType: genreType });
   }
 }

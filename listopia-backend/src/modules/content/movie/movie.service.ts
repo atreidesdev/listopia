@@ -168,7 +168,7 @@ export class MovieService {
     await this.franchiseService.addToFranchises({
       franchiseIds: franchise_ids,
       contentId: movie.id,
-      contentType: 'MOVIE',
+      genreType: 'movie',
     });
 
     if (cast && cast.length > 0) {

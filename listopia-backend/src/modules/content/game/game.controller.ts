@@ -42,14 +42,14 @@ export class GameController {
   }
 
   @UseGuards(RolesGuard)
-  @Roles('Admin', 'Developer', 'Editor')
+  @Roles('admin', 'developer', 'editor')
   @Post()
   async createGame(@Body() createGameData: CreateGameType): Promise<Game> {
     return this.gameService.createGame(createGameData);
   }
 
   @UseGuards(RolesGuard)
-  @Roles('Admin', 'Developer', 'Editor')
+  @Roles('admin', 'developer', 'editor')
   @Put('id')
   async updateGame(
     @Body() updatePersonData: UpdateGameTypeWithoutId,
@@ -59,7 +59,7 @@ export class GameController {
   }
 
   @UseGuards(RolesGuard)
-  @Roles('Admin', 'Developer', 'Editor')
+  @Roles('admin', 'developer', 'editor')
   @Delete(':id')
   async deleteGame(@Param('id') id: number): Promise<Game> {
     return this.gameService.deleteGame(id);

@@ -45,7 +45,7 @@ export class PersonController {
   }
 
   @UseGuards(RolesGuard)
-  @Roles('Admin', 'Developer', 'Editor')
+  @Roles('admin', 'developer', 'editor')
   @Post()
   async createPerson(
     @Body() createPersonData: CreatePersonType,
@@ -54,7 +54,7 @@ export class PersonController {
   }
 
   @UseGuards(RolesGuard)
-  @Roles('Admin', 'Developer', 'Editor')
+  @Roles('admin', 'developer', 'editor')
   @Put('id')
   async updatePerson(
     @Body() updatePersonData: UpdatePersonTypeWithoutId,
@@ -64,7 +64,7 @@ export class PersonController {
   }
 
   @UseGuards(RolesGuard)
-  @Roles('Admin', 'Developer', 'Editor')
+  @Roles('admin', 'developer', 'editor')
   @Delete(':id')
   async deletePerson(@Param('id') id: number): Promise<Person> {
     return this.personService.deletePerson(id);

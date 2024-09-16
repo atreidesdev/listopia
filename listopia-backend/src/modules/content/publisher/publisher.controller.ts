@@ -35,7 +35,7 @@ export class PublisherController {
   }
 
   @UseGuards(RolesGuard)
-  @Roles('Admin', 'Developer', 'Editor')
+  @Roles('admin', 'developer', 'editor')
   @Post()
   async createPublisher(
     @Body() createPublisherData: CreatePublisherType,
@@ -44,7 +44,7 @@ export class PublisherController {
   }
 
   @UseGuards(RolesGuard)
-  @Roles('Admin', 'Developer', 'Editor')
+  @Roles('admin', 'developer', 'editor')
   @Put(':id')
   async updatePublisher(
     @Body() updatePublisherData: UpdatePublisherTypeWithoutId,
@@ -57,7 +57,7 @@ export class PublisherController {
   }
 
   @UseGuards(RolesGuard)
-  @Roles('Admin', 'Developer', 'Editor')
+  @Roles('admin', 'developer', 'editor')
   @Delete(':id')
   async deletePublisher(@Param('id') id: number): Promise<Publisher> {
     return this.publisherService.deletePublisher(id);

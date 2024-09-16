@@ -35,7 +35,7 @@ export class CharacterController {
   }
 
   @UseGuards(RolesGuard)
-  @Roles('Admin', 'Developer', 'Editor')
+  @Roles('admin', 'developer', 'editor')
   @Post()
   async createCharacter(
     @Body() createCharacterData: CreateCharacterType,
@@ -44,7 +44,7 @@ export class CharacterController {
   }
 
   @UseGuards(RolesGuard)
-  @Roles('Admin', 'Developer', 'Editor')
+  @Roles('admin', 'developer', 'editor')
   @Put(':id')
   async updateCharacter(
     @Body() updateCharacterData: UpdateCharacterTypeWithoutId,
@@ -57,7 +57,7 @@ export class CharacterController {
   }
 
   @UseGuards(RolesGuard)
-  @Roles('Admin', 'Developer', 'Editor')
+  @Roles('admin', 'developer', 'editor')
   @Delete(':id')
   async deleteCharacter(@Param('id') id: number): Promise<Character> {
     return this.characterService.deleteCharacter(id);

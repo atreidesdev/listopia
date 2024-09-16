@@ -4,7 +4,7 @@ import type { DeleteCastType } from '@modules/content/cast/types/deleteCast.type
 import type { GetCastType } from '@modules/content/cast/types/getCast.type';
 import type { UpdateCastType } from '@modules/content/cast/types/updateCast.type';
 import { Injectable } from '@nestjs/common';
-import { BookCast, ContentType, GameCast, MovieCast } from '@prisma/client';
+import { BookCast, GameCast, GenreType, MovieCast } from '@prisma/client';
 import { PrismaService } from '@prismaPath/prisma.service';
 
 @Injectable()
@@ -17,24 +17,24 @@ export class CastService {
   async getCast(
     getCastData: GetCastType,
   ): Promise<(BookCast | MovieCast | GameCast)[]> {
-    const { contentId, contentType } = getCastData;
+    const { contentId, genreType } = getCastData;
     const whereCondition: { [key: string]: number } = this.createWhereCondition(
       contentId,
-      contentType,
+      genreType,
     );
 
-    switch (contentType) {
-      case 'BOOK':
+    switch (genreType) {
+      case 'book':
         return this.prisma.bookCast.findMany({
           where: whereCondition,
           orderBy: { roleType: 'asc' },
         });
-      case 'MOVIE':
+      case 'movie':
         return this.prisma.movieCast.findMany({
           where: whereCondition,
           orderBy: { roleType: 'asc' },
         });
-      case 'GAME':
+      case 'game':
         return this.prisma.gameCast.findMany({
           where: whereCondition,
           orderBy: { roleType: 'asc' },
@@ -46,18 +46,18 @@ export class CastService {
 
   private createWhereCondition(
     contentId: number,
-    contentType: ContentType,
+    genreType: GenreType,
   ): { [key: string]: number } {
     const whereCondition: { [key: string]: number } = {};
 
-    switch (contentType) {
-      case 'BOOK':
+    switch (genreType) {
+      case 'book':
         whereCondition.bookId = contentId;
         break;
-      case 'MOVIE':
+      case 'movie':
         whereCondition.movieId = contentId;
         break;
-      case 'GAME':
+      case 'game':
         whereCondition.gameId = contentId;
         break;
       default:
@@ -72,7 +72,7 @@ export class CastService {
   ): Promise<BookCast | MovieCast | GameCast> {
     const {
       contentId,
-      contentType,
+      genreType,
       roleName,
       roleActor,
       rolePhoto,
@@ -99,14 +99,14 @@ export class CastService {
       actorId,
     };
 
-    switch (contentType) {
-      case 'BOOK':
+    switch (genreType) {
+      case 'book':
         data.bookId = contentId;
         return this.prisma.bookCast.create({ data });
-      case 'MOVIE':
+      case 'movie':
         data.movieId = contentId;
         return this.prisma.movieCast.create({ data });
-      case 'GAME':
+      case 'game':
         data.gameId = contentId;
         return this.prisma.gameCast.create({ data });
       default:
@@ -133,7 +133,7 @@ export class CastService {
     const {
       id,
       contentId,
-      contentType,
+      genreType,
       roleName,
       roleActor,
       rolePhoto,
@@ -161,18 +161,18 @@ export class CastService {
       contentId,
     };
 
-    switch (contentType) {
-      case 'BOOK':
+    switch (genreType) {
+      case 'book':
         return this.prisma.bookCast.update({
           where: { id },
           data,
         });
-      case 'MOVIE':
+      case 'movie':
         return this.prisma.movieCast.update({
           where: { id },
           data,
         });
-      case 'GAME':
+      case 'game':
         return this.prisma.gameCast.update({
           where: { id },
           data,
@@ -198,18 +198,18 @@ export class CastService {
   async deleteCast(
     deleteCastData: DeleteCastType,
   ): Promise<BookCast | MovieCast | GameCast> {
-    const { id, contentType } = deleteCastData;
+    const { id, genreType } = deleteCastData;
 
-    switch (contentType) {
-      case 'BOOK':
+    switch (genreType) {
+      case 'book':
         return this.prisma.bookCast.delete({
           where: { id },
         });
-      case 'MOVIE':
+      case 'movie':
         return this.prisma.movieCast.delete({
           where: { id },
         });
-      case 'GAME':
+      case 'game':
         return this.prisma.gameCast.delete({
           where: { id },
         });

@@ -42,7 +42,7 @@ export class BookController {
   }
 
   @UseGuards(RolesGuard)
-  @Roles('Admin', 'Developer', 'Editor')
+  @Roles('admin', 'developer', 'editor')
   @Post()
   async createBook(@Body() createBookData: CreateBookType): Promise<Book> {
     return this.bookService.createBook(createBookData);
@@ -57,7 +57,7 @@ export class BookController {
   }
 
   @UseGuards(RolesGuard)
-  @Roles('Admin', 'Developer', 'Editor')
+  @Roles('admin', 'developer', 'editor')
   @Delete(':id')
   async deleteBook(@Param('id') id: number): Promise<Book> {
     return this.bookService.deleteBook(id);

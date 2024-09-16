@@ -12,7 +12,7 @@ import {
   Put,
   UseGuards,
 } from '@nestjs/common';
-import { ContentType } from '@prisma/client';
+import { GenreType } from '@prisma/client';
 import { GenreService } from './genre.service';
 
 @Controller('genre')
@@ -20,14 +20,14 @@ export class GenreController {
   constructor(private readonly genreService: GenreService) {}
 
   @UseGuards(RolesGuard)
-  @Roles('Admin', 'Developer', 'Editor')
+  @Roles('admin', 'developer', 'editor')
   @Post()
   async createGenre(@Body() createGenreData: CreateGenreType) {
     return this.genreService.createGenre(createGenreData);
   }
 
   @UseGuards(RolesGuard)
-  @Roles('Admin', 'Developer', 'Editor')
+  @Roles('admin', 'developer', 'editor')
   @Put(':id')
   async updateGenre(
     @Body() updateGenreData: UpdateGenreTypeWithoutId,
@@ -37,7 +37,7 @@ export class GenreController {
   }
 
   @UseGuards(RolesGuard)
-  @Roles('Admin', 'Developer', 'Editor')
+  @Roles('admin', 'developer', 'editor')
   @Delete(':id')
   async deleteGenre(@Param('id') id: number) {
     return this.genreService.deleteGenre(id);
@@ -49,7 +49,7 @@ export class GenreController {
   }
 
   @Get(':genreType')
-  async getGenresByType(@Param('genreType') genreType: ContentType) {
+  async getGenresByType(@Param('genreType') genreType: GenreType) {
     return this.genreService.getGenresByType(genreType);
   }
 }

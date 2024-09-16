@@ -17,9 +17,9 @@ import {
 } from '@nestjs/common';
 import {
   BookFranchise,
-  ContentType,
   Franchise,
   GameFranchise,
+  GenreType,
   MovieFranchise,
 } from '@prisma/client';
 import { FranchiseService } from './franchise.service';
@@ -41,7 +41,7 @@ export class FranchiseController {
   }
 
   @UseGuards(RolesGuard)
-  @Roles('Admin', 'Developer', 'Editor')
+  @Roles('admin', 'developer', 'editor')
   @Post()
   async createFranchise(
     @Body() createFranchiseData: CreateFranchiseType,
@@ -50,7 +50,7 @@ export class FranchiseController {
   }
 
   @UseGuards(RolesGuard)
-  @Roles('Admin', 'Developer', 'Editor')
+  @Roles('admin', 'developer', 'editor')
   @Put(':id')
   async updateFranchise(
     @Body() updateFranchiseData: UpdateFranchiseTypeWithoutId,
@@ -63,39 +63,39 @@ export class FranchiseController {
   }
 
   @UseGuards(RolesGuard)
-  @Roles('Admin', 'Developer', 'Editor')
+  @Roles('admin', 'developer', 'editor')
   @Delete(':id')
   async deleteFranchise(@Param('id') id: number): Promise<Franchise> {
     return this.franchiseService.deleteFranchise(id);
   }
 
   @UseGuards(RolesGuard)
-  @Roles('Admin', 'Developer', 'Editor')
-  @Post(':id/content/:contentType/:contentId')
+  @Roles('admin', 'developer', 'editor')
+  @Post(':id/content/:genreType/:contentId')
   async addToFranchise(
     @Param('id') franchiseId: number,
-    @Param('contentType') contentType: ContentType,
+    @Param('genreType') genreType: GenreType,
     @Param('id') contentId: number,
   ): Promise<BookFranchise | MovieFranchise | GameFranchise> {
     return this.franchiseService.addToFranchise({
       contentId: contentId,
       franchiseId: franchiseId,
-      contentType: contentType,
+      genreType: genreType,
     });
   }
 
   @UseGuards(RolesGuard)
-  @Roles('Admin', 'Developer', 'Editor')
-  @Delete(':id/content/:contentType/:contentId')
+  @Roles('admin', 'developer', 'editor')
+  @Delete(':id/content/:genreType/:contentId')
   async deleteFromFranchise(
     @Param('id') franchiseId: number,
-    @Param('contentType') contentType: ContentType,
+    @Param('genreType') genreType: GenreType,
     @Param('id') contentId: number,
   ): Promise<BookFranchise | MovieFranchise | GameFranchise> {
     return this.franchiseService.deleteFromFranchise({
       contentId: contentId,
       franchiseId: franchiseId,
-      contentType: contentType,
+      genreType: genreType,
     });
   }
 }

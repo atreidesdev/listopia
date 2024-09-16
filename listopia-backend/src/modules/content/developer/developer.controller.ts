@@ -1,9 +1,9 @@
 import { Roles } from '@common/decorators/roles.decorator';
 
 import { RolesGuard } from '@common/guards/RolesGuard/roles.guard';
-import type { CreateDeveloperType } from '@modules/content/developer/types/createDeveloper.type';
-import type { GetDevelopersType } from '@modules/content/developer/types/getDevelopers.type';
-import type { UpdateDeveloperTypeWithoutId } from '@modules/content/developer/types/updateDeveloper.type';
+import type { CreateDeveloperType } from '@modules/content/developer/types/createdeveloper.type';
+import type { GetDevelopersType } from '@modules/content/developer/types/getdevelopers.type';
+import type { UpdateDeveloperTypeWithoutId } from '@modules/content/developer/types/updatedeveloper.type';
 import {
   Body,
   Controller,
@@ -35,7 +35,7 @@ export class DeveloperController {
   }
 
   @UseGuards(RolesGuard)
-  @Roles('Admin', 'Developer', 'Editor')
+  @Roles('admin', 'developer', 'editor')
   @Post()
   async createDeveloper(
     @Body() createDeveloperData: CreateDeveloperType,
@@ -44,7 +44,7 @@ export class DeveloperController {
   }
 
   @UseGuards(RolesGuard)
-  @Roles('Admin', 'Developer', 'Editor')
+  @Roles('admin', 'developer', 'editor')
   @Put(':id')
   async updateDeveloper(
     @Body() updateDeveloperData: UpdateDeveloperTypeWithoutId,
@@ -57,7 +57,7 @@ export class DeveloperController {
   }
 
   @UseGuards(RolesGuard)
-  @Roles('Admin', 'Developer', 'Editor')
+  @Roles('admin', 'developer', 'editor')
   @Delete(':id')
   async deleteDeveloper(@Param('id') id: number): Promise<Developer> {
     return this.developerService.deleteDeveloper(id);

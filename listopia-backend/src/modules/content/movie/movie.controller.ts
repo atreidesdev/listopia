@@ -42,14 +42,14 @@ export class MovieController {
   }
 
   @UseGuards(RolesGuard)
-  @Roles('Admin', 'Developer', 'Editor')
+  @Roles('admin', 'developer', 'editor')
   @Post()
   async createMovie(@Body() createMovieData: CreateMovieType): Promise<Movie> {
     return this.movieService.createMovie(createMovieData);
   }
 
   @UseGuards(RolesGuard)
-  @Roles('Admin', 'Developer', 'Editor')
+  @Roles('admin', 'developer', 'editor')
   @Put('id')
   async updateMovie(
     @Body() updatePersonData: UpdateMovieTypeWithoutId,
@@ -59,7 +59,7 @@ export class MovieController {
   }
 
   @UseGuards(RolesGuard)
-  @Roles('Admin', 'Developer', 'Editor')
+  @Roles('admin', 'developer', 'editor')
   @Delete(':id')
   async deleteMovie(@Param('id') id: number): Promise<Movie> {
     return this.movieService.deleteMovie(id);

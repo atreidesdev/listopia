@@ -33,7 +33,7 @@ export class StudioController {
   }
 
   @UseGuards(RolesGuard)
-  @Roles('Admin', 'Developer', 'Editor')
+  @Roles('admin', 'developer', 'editor')
   @Post()
   async createStudio(
     @Body() createStudioData: CreateStudioType,
@@ -42,7 +42,7 @@ export class StudioController {
   }
 
   @UseGuards(RolesGuard)
-  @Roles('Admin', 'Developer', 'Editor')
+  @Roles('admin', 'developer', 'editor')
   @Put(':id')
   async updateStudio(
     @Body() updateStudioData: UpdateStudioTypeWithoutId,
@@ -52,7 +52,7 @@ export class StudioController {
   }
 
   @UseGuards(RolesGuard)
-  @Roles('Admin', 'Developer', 'Editor')
+  @Roles('admin', 'developer', 'editor')
   @Delete(':id')
   async deleteStudio(@Param('id') id: number): Promise<Studio> {
     return this.studioService.deleteStudio(id);

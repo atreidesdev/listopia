@@ -1,8 +1,8 @@
-import { ContentType, ListItemStatus } from '@prisma/client';
+import { GenreType, ListItemStatus } from '@prisma/client';
 
 export type baseListItemType = {
   userId: number;
-  contentType: ContentType;
+  genreType: GenreType;
   contentId: number;
 };
 

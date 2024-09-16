@@ -20,14 +20,14 @@ export class ThemeController {
   constructor(private readonly themeService: ThemeService) {}
 
   @UseGuards(RolesGuard)
-  @Roles('Admin', 'Developer', 'Editor')
+  @Roles('admin', 'developer', 'editor')
   @Post()
   async createTheme(@Body() createThemeData: CreateThemeType) {
     return this.themeService.createTheme(createThemeData);
   }
 
   @UseGuards(RolesGuard)
-  @Roles('Admin', 'Developer', 'Editor')
+  @Roles('admin', 'developer', 'editor')
   @Put(':id')
   async updateTheme(
     @Body() updateThemeData: UpdateThemeType,
@@ -37,7 +37,7 @@ export class ThemeController {
   }
 
   @UseGuards(RolesGuard)
-  @Roles('Admin', 'Developer', 'Editor')
+  @Roles('admin', 'developer', 'editor')
   @Delete(':id')
   async deleteTheme(@Param('id') id: number) {
     return this.themeService.deleteTheme(id);

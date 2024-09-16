@@ -35,7 +35,7 @@ export class PlatformController {
   }
 
   @UseGuards(RolesGuard)
-  @Roles('Admin', 'Developer', 'Editor')
+  @Roles('admin', 'developer', 'editor')
   @Post()
   async createPlatform(
     @Body() createPlatformData: CreatePlatformType,
@@ -44,7 +44,7 @@ export class PlatformController {
   }
 
   @UseGuards(RolesGuard)
-  @Roles('Admin', 'Developer', 'Editor')
+  @Roles('admin', 'developer', 'editor')
   @Put(':id')
   async updatePlatform(
     @Body() updatePlatformData: UpdatePlatformTypeWithoutId,
@@ -57,7 +57,7 @@ export class PlatformController {
   }
 
   @UseGuards(RolesGuard)
-  @Roles('Admin', 'Developer', 'Editor')
+  @Roles('admin', 'developer', 'editor')
   @Delete(':id')
   async deletePlatform(@Param('id') id: number): Promise<Platform> {
     return this.platformService.deletePlatform(id);

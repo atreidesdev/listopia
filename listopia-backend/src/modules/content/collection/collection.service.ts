@@ -12,7 +12,7 @@ import {
   CollectionBook,
   CollectionGame,
   CollectionMovie,
-  ContentType,
+  GenreType,
 } from '@prisma/client';
 import { PrismaService } from '@prismaPath/prisma.service';
 
@@ -74,7 +74,8 @@ export class CollectionService {
   async updateCollection(
     updateData: CollectionUpdateType,
   ): Promise<Collection> {
-    const { collectionId, userId, poster, name, description } = updateData;
+    const { collectionId, userId, poster, name, description, visibility } =
+      updateData;
 
     const collection = await this.prisma.collection.findUnique({
       where: { id: collectionId },
@@ -92,7 +93,12 @@ export class CollectionService {
       );
     }
 
-    const data = createUpdateData({ posterPath, name, description });
+    const data = createUpdateData({
+      posterPath,
+      name,
+      description,
+      visibility,
+    });
 
     return this.prisma.collection.update({
       where: { id: collectionId },
@@ -107,7 +113,7 @@ export class CollectionService {
   }
 
   async deleteCollection(
-    data: Omit<CollectionItem, 'contentType' | 'contentId'>,
+    data: Omit<CollectionItem, 'genreType' | 'contentId'>,
   ): Promise<Collection> {
     const { collectionId, userId } = data;
 
@@ -123,7 +129,7 @@ export class CollectionService {
   async addItemToCollection(
     addItemToCollectionData: CollectionItem,
   ): Promise<CollectionBook | CollectionGame | CollectionMovie> {
-    const { userId, collectionId, contentType, contentId } =
+    const { userId, collectionId, genreType, contentId } =
       addItemToCollectionData;
 
     const collection = await this.prisma.collection.findUnique({
@@ -132,9 +138,9 @@ export class CollectionService {
 
     this.validate(collection, userId);
 
-    const modelName = this.getModelName(contentType);
+    const modelName = this.getModelName(genreType);
     const data = this.createCollectionItemData(
-      contentType,
+      genreType,
       collectionId,
       contentId,
     );
@@ -145,7 +151,7 @@ export class CollectionService {
   async deleteItemFromCollection(
     data: CollectionItem,
   ): Promise<CollectionBook | CollectionGame | CollectionMovie> {
-    const { collectionId, userId, contentType, contentId } = data;
+    const { collectionId, userId, genreType, contentId } = data;
 
     const collection = await this.prisma.collection.findUnique({
       where: { id: collectionId },
@@ -153,9 +159,9 @@ export class CollectionService {
 
     this.validate(collection, userId);
 
-    const modelName = this.getModelName(contentType);
+    const modelName = this.getModelName(genreType);
     const where = this.createCollectionItemData(
-      contentType,
+      genreType,
       collectionId,
       contentId,
     );
@@ -163,25 +169,25 @@ export class CollectionService {
     return this.prisma[modelName].delete({ where });
   }
 
-  private getModelName(contentType: ContentType): string {
-    switch (contentType) {
-      case 'BOOK':
+  private getModelName(genreType: GenreType): string {
+    switch (genreType) {
+      case 'book':
         return 'collectionBook';
-      case 'GAME':
+      case 'game':
         return 'collectionGame';
-      case 'MOVIE':
+      case 'movie':
         return 'collectionMovie';
       default:
-        throw new Error(`Unknown content type: ${contentType}`);
+        throw new Error(`Unknown content type: ${genreType}`);
     }
   }
 
   private createCollectionItemData(
-    contentType: ContentType,
+    genreType: GenreType,
     collectionId: number,
     contentId: number,
   ): any {
-    const contentIdField = `${contentType.toLowerCase()}Id`;
+    const contentIdField = `${genreType.toLowerCase()}Id`;
     return {
       collectionId,
       [contentIdField]: contentId,

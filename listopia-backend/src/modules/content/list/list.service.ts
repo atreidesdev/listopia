@@ -8,7 +8,7 @@ import type {
   ListItemType,
 } from '@modules/content/list/types/listItem.type';
 import { Injectable } from '@nestjs/common';
-import { ContentType, ListItemStatus } from '@prisma/client';
+import { GenreType, ListItemStatus } from '@prisma/client';
 import { PrismaService } from '@prismaPath/prisma.service';
 
 @Injectable()
@@ -16,75 +16,77 @@ export class ListService {
   constructor(private readonly prisma: PrismaService) {}
 
   async UpdateNote(data: ListItemNoteType) {
-    const { userId, contentType, contentId, note } = data;
+    const { userId, genreType, contentId, note } = data;
 
-    const where = this.getWhereClause(contentType, userId, contentId);
+    const where = this.getWhereClause(genreType, userId, contentId);
     const updateData = { note };
 
-    return this.prisma[this.getModelName(contentType)].update({
+    return this.prisma[this.getModelName(genreType)].update({
       where,
       data: updateData,
     });
   }
 
   async UpdateRating(data: ListItemRatingType) {
-    const { userId, contentType, contentId, rating } = data;
+    const { userId, genreType, contentId, rating } = data;
 
-    const where = this.getWhereClause(contentType, userId, contentId);
+    const where = this.getWhereClause(genreType, userId, contentId);
     const updateData = { rating };
 
-    return this.prisma[this.getModelName(contentType)].update({
+    return this.prisma[this.getRatingModelName(genreType)].upsert({
       where,
-      data: updateData,
+      create: { userId, contentId, rating },
+      update: updateData,
     });
   }
 
   async UpdateReview(data: ListItemReviewType) {
-    const { userId, contentType, contentId, review } = data;
+    const { userId, genreType, contentId, review } = data;
 
-    const where = this.getWhereClause(contentType, userId, contentId);
+    const where = this.getWhereClause(genreType, userId, contentId);
     const updateData = { review };
 
-    return this.prisma[this.getModelName(contentType)].update({
+    return this.prisma[this.getReviewModelName(genreType)].upsert({
       where,
-      data: updateData,
+      create: { userId, contentId, review },
+      update: updateData,
     });
   }
 
   async UpdateCurrent(data: ListItemCurrentType) {
-    const { userId, contentType, contentId, current } = data;
+    const { userId, genreType, contentId, current } = data;
 
-    const where = this.getWhereClause(contentType, userId, contentId);
+    const where = this.getWhereClause(genreType, userId, contentId);
     const updateData = { current };
 
-    if (contentType === ContentType.BOOK) {
+    if (genreType === GenreType.book) {
       const bookItem = await this.prisma[
-        this.getModelName(contentType)
+        this.getModelName(genreType)
       ].findUnique({
         where,
       });
       if (bookItem && current === bookItem.maxPages) {
-        updateData['status'] = ListItemStatus.WATCHED;
+        updateData['status'] = ListItemStatus.watched;
       }
-    } else if (contentType === ContentType.MOVIE) {
+    } else if (genreType === GenreType.movie) {
       const movie = await this.prisma.movie.findUnique({
         where: { id: contentId },
       });
       if (movie && current === movie.seriesCount) {
-        updateData['status'] = ListItemStatus.WATCHED;
+        updateData['status'] = ListItemStatus.watched;
       }
     }
 
-    return await this.prisma[this.getModelName(contentType)].update({
+    return await this.prisma[this.getModelName(genreType)].update({
       where,
       data: updateData,
     });
   }
 
   async UpdateMaxPages(data: ListBookMaxPagesType) {
-    const { userId, contentType, contentId, maxPages } = data;
+    const { userId, genreType, contentId, maxPages } = data;
 
-    if (contentType != ContentType.BOOK) {
+    if (genreType != GenreType.book) {
       throw new Error('This method can be used only for Book');
     }
 
@@ -102,12 +104,12 @@ export class ListService {
   }
 
   async addOrUpdateListItem(data: ListItemType) {
-    const { userId, contentType, contentId, status } = data;
+    const { userId, genreType, contentId, status } = data;
 
-    const where = this.getWhereClause(contentType, userId, contentId);
+    const where = this.getWhereClause(genreType, userId, contentId);
     const updateData = { status };
 
-    return this.prisma[this.getModelName(contentType)].upsert({
+    return this.prisma[this.getModelName(genreType)].upsert({
       where,
       create: { userId, contentId, status },
       update: updateData,
@@ -115,11 +117,11 @@ export class ListService {
   }
 
   async deleteListItem(data: baseListItemType) {
-    const { userId, contentType, contentId } = data;
+    const { userId, genreType, contentId } = data;
 
-    const where = this.getWhereClause(contentType, userId, contentId);
+    const where = this.getWhereClause(genreType, userId, contentId);
 
-    return this.prisma[this.getModelName(contentType)].delete({
+    return this.prisma[this.getModelName(genreType)].delete({
       where,
     });
   }
@@ -138,38 +140,64 @@ export class ListService {
   }
 
   async getListItemsByTypeAndStatus(data: Omit<ListItemType, 'contentId'>) {
-    const { userId, contentType, status } = data;
+    const { userId, genreType, status } = data;
     const where = { userId, status };
-    return this.prisma[this.getModelName(contentType)].findMany({ where });
+    return this.prisma[this.getModelName(genreType)].findMany({ where });
   }
 
-  private getModelName(contentType: ContentType): string {
-    switch (contentType) {
-      case 'BOOK':
+  private getModelName(genreType: GenreType): string {
+    switch (genreType) {
+      case 'book':
         return 'bookListItem';
-      case 'GAME':
+      case 'game':
         return 'gameListItem';
-      case 'MOVIE':
+      case 'movie':
         return 'movieListItem';
       default:
-        throw new Error(`Unknown content type: ${contentType}`);
+        throw new Error(`Unknown content type: ${genreType}`);
     }
   }
 
   private getWhereClause(
-    contentType: ContentType,
+    genreType: GenreType,
     userId: number,
     contentId: number,
   ) {
-    switch (contentType) {
-      case 'BOOK':
+    switch (genreType) {
+      case 'book':
         return { userId_bookId: { userId, bookId: contentId } };
-      case 'GAME':
+      case 'game':
         return { userId_gameId: { userId, gameId: contentId } };
-      case 'MOVIE':
+      case 'movie':
         return { userId_movieId: { userId, movieId: contentId } };
       default:
-        throw new Error(`Unknown content type: ${contentType}`);
+        throw new Error(`Unknown content type: ${genreType}`);
+    }
+  }
+
+  private getRatingModelName(genreType: GenreType): string {
+    switch (genreType) {
+      case 'book':
+        return 'bookListItemRating';
+      case 'game':
+        return 'gameListItemRating';
+      case 'movie':
+        return 'movieListItemRating';
+      default:
+        throw new Error(`Unknown content type: ${genreType}`);
+    }
+  }
+
+  private getReviewModelName(genreType: GenreType): string {
+    switch (genreType) {
+      case 'book':
+        return 'bookListItemReview';
+      case 'game':
+        return 'gameListItemReview';
+      case 'movie':
+        return 'movieListItemReview';
+      default:
+        throw new Error(`Unknown content type: ${genreType}`);
     }
   }
 }
