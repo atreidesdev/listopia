@@ -15,11 +15,14 @@ import {
   Delete,
   Get,
   Param,
+  ParseIntPipe,
   Post,
   Put,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
 import { GenreType, ListItemStatus } from '@prisma/client';
+import { HistoryInterceptor } from '../../../middleware/history/history.interceptor';
 import { ListService } from './list.service';
 
 @Controller('list')
@@ -28,15 +31,15 @@ export class ListController {
 
   @UseGuards(JwtAuthGuard)
   @Put(':genreType/:contentId/note')
-  async UpdateNote(
+  async updateNote(
     @Param('genreType') genreType: GenreType,
-    @Param('contentId') contentId: number,
+    @Param('contentId', ParseIntPipe) contentId: number,
     @Body()
     data: Omit<ListItemNoteType, 'userId' | 'genreType' | 'contentId'>,
     @CurrentUser() user: UserPayload,
   ) {
     const userId = user.id;
-    return this.listService.UpdateNote({
+    return this.listService.updateNote({
       ...data,
       userId,
       genreType,
@@ -46,15 +49,15 @@ export class ListController {
 
   @UseGuards(JwtAuthGuard)
   @Put(':genreType/:contentId/rating')
-  async UpdateRating(
+  async updateRating(
     @Param('genreType') genreType: GenreType,
-    @Param('contentId') contentId: number,
+    @Param('contentId', ParseIntPipe) contentId: number,
     @Body()
     data: Omit<ListItemRatingType, 'userId' | 'genreType' | 'contentId'>,
     @CurrentUser() user: UserPayload,
   ) {
     const userId = user.id;
-    return this.listService.UpdateRating({
+    return this.listService.updateRating({
       ...data,
       userId,
       genreType,
@@ -64,15 +67,15 @@ export class ListController {
 
   @UseGuards(JwtAuthGuard)
   @Put(':genreType/:contentId/review')
-  async UpdateReview(
+  async updateReview(
     @Param('genreType') genreType: GenreType,
-    @Param('contentId') contentId: number,
+    @Param('contentId', ParseIntPipe) contentId: number,
     @Body()
     data: Omit<ListItemReviewType, 'userId' | 'genreType' | 'contentId'>,
     @CurrentUser() user: UserPayload,
   ) {
     const userId = user.id;
-    return this.listService.UpdateReview({
+    return this.listService.updateReview({
       ...data,
       userId,
       genreType,
@@ -82,15 +85,15 @@ export class ListController {
 
   @UseGuards(JwtAuthGuard)
   @Put(':genreType/:contentId/current')
-  async UpdateCurrent(
+  async updateCurrent(
     @Param('genreType') genreType: GenreType,
-    @Param('contentId') contentId: number,
+    @Param('contentId', ParseIntPipe) contentId: number,
     @Body()
     data: Omit<ListItemCurrentType, 'userId' | 'genreType' | 'contentId'>,
     @CurrentUser() user: UserPayload,
   ) {
     const userId = user.id;
-    return this.listService.UpdateCurrent({
+    return this.listService.updateCurrent({
       ...data,
       userId,
       genreType,
@@ -100,15 +103,15 @@ export class ListController {
 
   @UseGuards(JwtAuthGuard)
   @Put(':genreType/:contentId/maxPages')
-  async UpdateMaxPages(
+  async updateMaxPages(
     @Param('genreType') genreType: GenreType,
-    @Param('contentId') contentId: number,
+    @Param('contentId', ParseIntPipe) contentId: number,
     @Body()
     data: Omit<ListBookMaxPagesType, 'userId' | 'genreType' | 'contentId'>,
     @CurrentUser() user: UserPayload,
   ) {
     const userId = user.id;
-    return this.listService.UpdateMaxPages({
+    return this.listService.updateMaxPages({
       ...data,
       userId,
       genreType,
@@ -116,11 +119,12 @@ export class ListController {
     });
   }
 
+  @UseInterceptors(HistoryInterceptor)
   @UseGuards(JwtAuthGuard)
   @Post(':genreType/:contentId')
   async addOrUpdateListItem(
     @Param('genreType') genreType: GenreType,
-    @Param('contentId') contentId: number,
+    @Param('contentId', ParseIntPipe) contentId: number,
     @Body() data: Omit<ListItemType, 'userId' | 'genreType' | 'contentId'>,
     @CurrentUser() user: UserPayload,
   ) {
@@ -137,7 +141,7 @@ export class ListController {
   @Delete(':genreType/:contentId')
   async deleteListItem(
     @Param('genreType') genreType: GenreType,
-    @Param('contentId') contentId: number,
+    @Param('contentId', ParseIntPipe) contentId: number,
     @CurrentUser() user: UserPayload,
   ) {
     const userId = user.id;

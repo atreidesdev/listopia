@@ -12,6 +12,7 @@ import {
   Delete,
   Get,
   Param,
+  ParseIntPipe,
   Post,
   Put,
   Query,
@@ -26,7 +27,7 @@ export class GameController {
 
   @Get(':id')
   async getGame(
-    @Param('id') id: number,
+    @Param('id', ParseIntPipe) id: number,
     @CurrentUser() user: UserPayload,
     @Query('lang') lang?: string,
   ): Promise<Game> {
@@ -53,7 +54,7 @@ export class GameController {
   @Put('id')
   async updateGame(
     @Body() updatePersonData: UpdateGameTypeWithoutId,
-    @Param('id') id: number,
+    @Param('id', ParseIntPipe) id: number,
   ): Promise<Game> {
     return this.gameService.updateGame({ ...updatePersonData, id: id });
   }
@@ -61,7 +62,7 @@ export class GameController {
   @UseGuards(RolesGuard)
   @Roles('admin', 'developer', 'editor')
   @Delete(':id')
-  async deleteGame(@Param('id') id: number): Promise<Game> {
+  async deleteGame(@Param('id', ParseIntPipe) id: number): Promise<Game> {
     return this.gameService.deleteGame(id);
   }
 }

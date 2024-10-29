@@ -10,6 +10,7 @@ import {
   Delete,
   Get,
   Param,
+  ParseIntPipe,
   Post,
   Put,
   UseGuards,
@@ -31,7 +32,7 @@ export class ThemeController {
   @Put(':id')
   async updateTheme(
     @Body() updateThemeData: UpdateThemeType,
-    @Param('id') id: number,
+    @Param('id', ParseIntPipe) id: number,
   ) {
     return this.themeService.updateTheme({ ...updateThemeData, id: id });
   }
@@ -39,7 +40,7 @@ export class ThemeController {
   @UseGuards(RolesGuard)
   @Roles('admin', 'developer', 'editor')
   @Delete(':id')
-  async deleteTheme(@Param('id') id: number) {
+  async deleteTheme(@Param('id', ParseIntPipe) id: number) {
     return this.themeService.deleteTheme(id);
   }
 

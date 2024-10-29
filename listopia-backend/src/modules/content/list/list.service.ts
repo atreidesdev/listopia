@@ -15,7 +15,7 @@ import { PrismaService } from '@prismaPath/prisma.service';
 export class ListService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async UpdateNote(data: ListItemNoteType) {
+  async updateNote(data: ListItemNoteType) {
     const { userId, genreType, contentId, note } = data;
 
     const where = this.getWhereClause(genreType, userId, contentId);
@@ -27,7 +27,7 @@ export class ListService {
     });
   }
 
-  async UpdateRating(data: ListItemRatingType) {
+  async updateRating(data: ListItemRatingType) {
     const { userId, genreType, contentId, rating } = data;
 
     const where = this.getWhereClause(genreType, userId, contentId);
@@ -40,7 +40,7 @@ export class ListService {
     });
   }
 
-  async UpdateReview(data: ListItemReviewType) {
+  async updateReview(data: ListItemReviewType) {
     const { userId, genreType, contentId, review } = data;
 
     const where = this.getWhereClause(genreType, userId, contentId);
@@ -53,7 +53,7 @@ export class ListService {
     });
   }
 
-  async UpdateCurrent(data: ListItemCurrentType) {
+  async updateCurrent(data: ListItemCurrentType) {
     const { userId, genreType, contentId, current } = data;
 
     const where = this.getWhereClause(genreType, userId, contentId);
@@ -83,7 +83,7 @@ export class ListService {
     });
   }
 
-  async UpdateMaxPages(data: ListBookMaxPagesType) {
+  async updateMaxPages(data: ListBookMaxPagesType) {
     const { userId, genreType, contentId, maxPages } = data;
 
     if (genreType != GenreType.book) {
@@ -109,9 +109,30 @@ export class ListService {
     const where = this.getWhereClause(genreType, userId, contentId);
     const updateData = { status };
 
+    console.log(where);
+
+    const createData: any = {
+      user: { connect: { id: userId } },
+      status,
+    };
+
+    switch (genreType) {
+      case GenreType.book:
+        createData.book = { connect: { id: contentId } };
+        break;
+      case GenreType.movie:
+        createData.movie = { connect: { id: contentId } };
+        break;
+      case GenreType.game:
+        createData.game = { connect: { id: contentId } };
+        break;
+      default:
+        throw new Error(`Unknown genre type: ${genreType}`);
+    }
+
     return this.prisma[this.getModelName(genreType)].upsert({
       where,
-      create: { userId, contentId, status },
+      create: createData,
       update: updateData,
     });
   }

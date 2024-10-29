@@ -6,7 +6,7 @@ import * as tf from '@tensorflow/tfjs';
 
 @Injectable()
 export class RecommendationService implements OnModuleInit {
-  private model: tf.LayersModel;
+  private model: tf.GraphModel;
 
   constructor(private readonly prisma: PrismaService) {}
 
@@ -19,8 +19,9 @@ export class RecommendationService implements OnModuleInit {
   }
 
   private async loadModel() {
-    this.model = await tf.loadLayersModel(
-      'https://tfhub.dev/google/tfjs-model/imagenet/inception_v3/feature_vector/3/default/1',
+    this.model = await tf.loadGraphModel(
+      'https://www.kaggle.com/models/google/inception-v3/TfJs/classification/2',
+      { fromTFHub: true },
     );
   }
 

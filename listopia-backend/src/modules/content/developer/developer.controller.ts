@@ -10,6 +10,7 @@ import {
   Delete,
   Get,
   Param,
+  ParseIntPipe,
   Post,
   Put,
   Query,
@@ -23,7 +24,9 @@ export class DeveloperController {
   constructor(private readonly developerService: DeveloperService) {}
 
   @Get(':id')
-  async getDeveloper(@Param('id') id: number): Promise<Developer> {
+  async getDeveloper(
+    @Param('id', ParseIntPipe) id: number,
+  ): Promise<Developer> {
     return this.developerService.getDeveloper(id);
   }
 
@@ -48,7 +51,7 @@ export class DeveloperController {
   @Put(':id')
   async updateDeveloper(
     @Body() updateDeveloperData: UpdateDeveloperTypeWithoutId,
-    @Param('id') id: number,
+    @Param('id', ParseIntPipe) id: number,
   ): Promise<Developer> {
     return this.developerService.updateDeveloper({
       ...updateDeveloperData,
@@ -59,7 +62,9 @@ export class DeveloperController {
   @UseGuards(RolesGuard)
   @Roles('admin', 'developer', 'editor')
   @Delete(':id')
-  async deleteDeveloper(@Param('id') id: number): Promise<Developer> {
+  async deleteDeveloper(
+    @Param('id', ParseIntPipe) id: number,
+  ): Promise<Developer> {
     return this.developerService.deleteDeveloper(id);
   }
 }

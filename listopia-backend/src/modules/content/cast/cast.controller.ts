@@ -13,6 +13,7 @@ import {
   Delete,
   Get,
   Param,
+  ParseIntPipe,
   Post,
   Put,
   Query,
@@ -55,7 +56,7 @@ export class CastController {
   @Put(':id')
   async updateCast(
     @Body() updateCastData: UpdateCastDataWithoutId,
-    @Param('id') id: number,
+    @Param('id', ParseIntPipe) id: number,
   ): Promise<BookCast | MovieCast | GameCast> {
     return this.castService.updateCast({ ...updateCastData, id: id });
   }
@@ -73,7 +74,7 @@ export class CastController {
   @Roles('admin', 'developer', 'editor')
   @Delete(':genreType/:id')
   async deleteCast(
-    @Param('id') id: number,
+    @Param('id', ParseIntPipe) id: number,
     @Param('genreType') genreType: GenreType,
   ): Promise<BookCast | MovieCast | GameCast> {
     return this.castService.deleteCast({ id: id, genreType: genreType });

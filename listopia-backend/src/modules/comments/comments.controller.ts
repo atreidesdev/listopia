@@ -8,6 +8,7 @@ import {
   Controller,
   Get,
   Param,
+  ParseIntPipe,
   Post,
   Query,
   UseGuards,
@@ -23,7 +24,7 @@ export class CommentsController {
   @Post(':contentType/:contentId')
   async createComment(
     @Param('contentType') contentType: string,
-    @Param('contentId') contentId: number,
+    @Param('contentId', ParseIntPipe) contentId: number,
     @Body()
     createCommentData: Omit<
       CreateCommentType,
@@ -43,7 +44,7 @@ export class CommentsController {
   @Get(':contentType/:contentId')
   async getComments(
     @Param('contentType') contentType: string,
-    @Param('contentId') contentId: number,
+    @Param('contentId', ParseIntPipe) contentId: number,
     @Query('page') page: number = 1,
   ) {
     const getCommentsData: GetCommentsType = {

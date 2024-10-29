@@ -3,6 +3,8 @@ version: '3.8'
 services:
   postgres:
     image: postgres:15
+    env_file:
+      - .dbenv
     environment:
       POSTGRES_USER: ${DB_USER}
       POSTGRES_PASSWORD: ${DB_PASSWORD}

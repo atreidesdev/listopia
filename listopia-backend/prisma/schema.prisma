@@ -635,6 +635,16 @@ model GameComment {
   replies GameComment[] @relation("CommentReplies")
 }
 
+model History {
+  id        Int       @id @default(autoincrement())
+  userId    Int
+  genreType GenreType
+  text      String
+  createdAt DateTime  @default(now())
+
+  @@index([userId])
+}
+
 model BookListItem {
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
@@ -941,4 +951,42 @@ model NewsComment {
 model Dumb {
   id   Int         @id
   type ContentType
+}
+
+model Article {
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  id         Int       @id @default(autoincrement())
+  title      String
+  sections   Section[]
+  posterPath String
+}
+
+model Section {
+  id              Int              @id @default(autoincrement())
+  articleId       Int
+  article         Article          @relation(fields: [articleId], references: [id])
+  backgroundColor String? // Цвет фона секции (опционально)
+  elements        ArticleElement[] // Секция содержит элементы
+  order           Int // Порядковый номер секции в статье
+}
+
+model ArticleElement {
+  id          Int         @id @default(autoincrement())
+  sectionId   Int
+  section     Section     @relation(fields: [sectionId], references: [id])
+  order       Int // Порядковый номер элемента в секции
+  elementType ElementType // Тип элемента
+  content     String? // Общее поле для контента (заголовки, подзаголовки, текст)
+  posterPath  String? // URL изображения для типа IMAGE
+  caption     String? // Подпись для изображения
+}
+
+enum ElementType {
+  TITLE
+  SUBTITLE
+  TEXT
+  IMAGE
+  SLIDER
+  BLOCK
 }

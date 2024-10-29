@@ -10,6 +10,7 @@ import {
   Delete,
   Get,
   Param,
+  ParseIntPipe,
   Post,
   Put,
   Query,
@@ -23,7 +24,9 @@ export class PublisherController {
   constructor(private readonly publisherService: PublisherService) {}
 
   @Get(':id')
-  async getPublisher(@Param('id') id: number): Promise<Publisher> {
+  async getPublisher(
+    @Param('id', ParseIntPipe) id: number,
+  ): Promise<Publisher> {
     return this.publisherService.getPublisher(id);
   }
 
@@ -48,7 +51,7 @@ export class PublisherController {
   @Put(':id')
   async updatePublisher(
     @Body() updatePublisherData: UpdatePublisherTypeWithoutId,
-    @Param('id') id: number,
+    @Param('id', ParseIntPipe) id: number,
   ): Promise<Publisher> {
     return this.publisherService.updatePublisher({
       ...updatePublisherData,
@@ -59,7 +62,9 @@ export class PublisherController {
   @UseGuards(RolesGuard)
   @Roles('admin', 'developer', 'editor')
   @Delete(':id')
-  async deletePublisher(@Param('id') id: number): Promise<Publisher> {
+  async deletePublisher(
+    @Param('id', ParseIntPipe) id: number,
+  ): Promise<Publisher> {
     return this.publisherService.deletePublisher(id);
   }
 }

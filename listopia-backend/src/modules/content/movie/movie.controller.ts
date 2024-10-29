@@ -12,6 +12,7 @@ import {
   Delete,
   Get,
   Param,
+  ParseIntPipe,
   Post,
   Put,
   Query,
@@ -26,7 +27,7 @@ export class MovieController {
 
   @Get(':id')
   async getMovie(
-    @Param('id') id: number,
+    @Param('id', ParseIntPipe) id: number,
     @CurrentUser() user: UserPayload,
     @Query('lang') lang?: string,
   ): Promise<Movie> {
@@ -53,7 +54,7 @@ export class MovieController {
   @Put('id')
   async updateMovie(
     @Body() updatePersonData: UpdateMovieTypeWithoutId,
-    @Param('id') id: number,
+    @Param('id', ParseIntPipe) id: number,
   ): Promise<Movie> {
     return this.movieService.updateMovie({ ...updatePersonData, id: id });
   }
@@ -61,7 +62,7 @@ export class MovieController {
   @UseGuards(RolesGuard)
   @Roles('admin', 'developer', 'editor')
   @Delete(':id')
-  async deleteMovie(@Param('id') id: number): Promise<Movie> {
+  async deleteMovie(@Param('id', ParseIntPipe) id: number): Promise<Movie> {
     return this.movieService.deleteMovie(id);
   }
 }

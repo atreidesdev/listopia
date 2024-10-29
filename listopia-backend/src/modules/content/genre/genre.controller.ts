@@ -8,6 +8,7 @@ import {
   Delete,
   Get,
   Param,
+  ParseIntPipe,
   Post,
   Put,
   UseGuards,
@@ -31,7 +32,7 @@ export class GenreController {
   @Put(':id')
   async updateGenre(
     @Body() updateGenreData: UpdateGenreTypeWithoutId,
-    @Param('id') id: number,
+    @Param('id', ParseIntPipe) id: number,
   ) {
     return this.genreService.updateGenre({ ...updateGenreData, id: id });
   }
@@ -39,7 +40,7 @@ export class GenreController {
   @UseGuards(RolesGuard)
   @Roles('admin', 'developer', 'editor')
   @Delete(':id')
-  async deleteGenre(@Param('id') id: number) {
+  async deleteGenre(@Param('id', ParseIntPipe) id: number) {
     return this.genreService.deleteGenre(id);
   }
 
