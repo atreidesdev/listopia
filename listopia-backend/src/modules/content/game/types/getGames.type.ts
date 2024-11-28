@@ -6,3 +6,7 @@ export type GetGamesType = {
   genreIds?: number[];
   themeIds?: number[];
 };
+
+export type GetGamesWithTranslationType = GetGamesType & {
+  lang?: string;
+};

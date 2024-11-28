@@ -1,7 +1,7 @@
 import { FileUtil } from '@common/utils/file.util';
-import type { CreateDeveloperType } from '@modules/content/developer/types/createDeveloper.type';
-import type { GetDevelopersType } from '@modules/content/developer/types/getDevelopers.type';
-import type { UpdateDeveloperType } from '@modules/content/developer/types/updateDeveloper.type';
+import type { CreateDeveloperType } from '@modules/content/developer/types/createdeveloper.type';
+import type { GetDevelopersType } from '@modules/content/developer/types/getdevelopers.type';
+import type { UpdateDeveloperType } from '@modules/content/developer/types/updatedeveloper.type';
 import { Injectable } from '@nestjs/common';
 import { Developer, Prisma } from '@prisma/client';
 import { PrismaService } from '@prismaPath/prisma.service';
@@ -19,12 +19,8 @@ export class DeveloperService {
     });
 
     if (!existingDeveloper) {
-      throw new Error('Developer not found');
+      throw new Error('developer not found');
     }
-    this.prisma.developer.update({
-      where: { id: id },
-      data: { visitCount: existingDeveloper.visitCount + 1 },
-    });
 
     return this.prisma.developer.findUnique({ where: { id } });
   }
@@ -84,7 +80,7 @@ export class DeveloperService {
     });
 
     if (!existingDeveloper) {
-      throw new Error('Developer not found');
+      throw new Error('developer not found');
     }
 
     let logoPath = existingDeveloper.logoPath;
@@ -121,7 +117,7 @@ export class DeveloperService {
     });
 
     if (!existingDeveloper) {
-      throw new Error('Developer not found');
+      throw new Error('developer not found');
     }
 
     if (existingDeveloper.logoPath) {

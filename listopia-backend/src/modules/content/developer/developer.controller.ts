@@ -1,15 +1,16 @@
 import { Roles } from '@common/decorators/roles.decorator';
 
 import { RolesGuard } from '@common/guards/RolesGuard/roles.guard';
-import type { CreateDeveloperType } from '@modules/content/developer/types/createDeveloper.type';
-import type { GetDevelopersType } from '@modules/content/developer/types/getDevelopers.type';
-import type { UpdateDeveloperTypeWithoutId } from '@modules/content/developer/types/updateDeveloper.type';
+import type { CreateDeveloperType } from '@modules/content/developer/types/createdeveloper.type';
+import type { GetDevelopersType } from '@modules/content/developer/types/getdevelopers.type';
+import type { UpdateDeveloperTypeWithoutId } from '@modules/content/developer/types/updatedeveloper.type';
 import {
   Body,
   Controller,
   Delete,
   Get,
   Param,
+  ParseIntPipe,
   Post,
   Put,
   Query,
@@ -23,7 +24,9 @@ export class DeveloperController {
   constructor(private readonly developerService: DeveloperService) {}
 
   @Get(':id')
-  async getDeveloper(@Param('id') id: number): Promise<Developer> {
+  async getDeveloper(
+    @Param('id', ParseIntPipe) id: number,
+  ): Promise<Developer> {
     return this.developerService.getDeveloper(id);
   }
 
@@ -35,7 +38,7 @@ export class DeveloperController {
   }
 
   @UseGuards(RolesGuard)
-  @Roles('Admin', 'Developer', 'Editor')
+  @Roles('admin', 'developer', 'editor')
   @Post()
   async createDeveloper(
     @Body() createDeveloperData: CreateDeveloperType,
@@ -44,11 +47,11 @@ export class DeveloperController {
   }
 
   @UseGuards(RolesGuard)
-  @Roles('Admin', 'Developer', 'Editor')
+  @Roles('admin', 'developer', 'editor')
   @Put(':id')
   async updateDeveloper(
     @Body() updateDeveloperData: UpdateDeveloperTypeWithoutId,
-    @Param('id') id: number,
+    @Param('id', ParseIntPipe) id: number,
   ): Promise<Developer> {
     return this.developerService.updateDeveloper({
       ...updateDeveloperData,
@@ -57,9 +60,11 @@ export class DeveloperController {
   }
 
   @UseGuards(RolesGuard)
-  @Roles('Admin', 'Developer', 'Editor')
+  @Roles('admin', 'developer', 'editor')
   @Delete(':id')
-  async deleteDeveloper(@Param('id') id: number): Promise<Developer> {
+  async deleteDeveloper(
+    @Param('id', ParseIntPipe) id: number,
+  ): Promise<Developer> {
     return this.developerService.deleteDeveloper(id);
   }
 }

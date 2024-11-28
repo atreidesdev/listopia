@@ -1,6 +1,6 @@
-import { ContentType } from '@prisma/client';
+import { GenreType } from '@prisma/client';
 
 export type DeleteCastType = {
   id: number;
-  contentType: ContentType;
+  genreType: GenreType;
 };

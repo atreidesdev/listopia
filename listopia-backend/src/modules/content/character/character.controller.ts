@@ -10,6 +10,7 @@ import {
   Delete,
   Get,
   Param,
+  ParseIntPipe,
   Post,
   Put,
   Query,
@@ -23,7 +24,9 @@ export class CharacterController {
   constructor(private readonly characterService: CharacterService) {}
 
   @Get(':id')
-  async getCharacter(@Param('id') id: number): Promise<Character> {
+  async getCharacter(
+    @Param('id', ParseIntPipe) id: number,
+  ): Promise<Character> {
     return this.characterService.getCharacter(id);
   }
 
@@ -35,7 +38,7 @@ export class CharacterController {
   }
 
   @UseGuards(RolesGuard)
-  @Roles('Admin', 'Developer', 'Editor')
+  @Roles('admin', 'developer', 'editor')
   @Post()
   async createCharacter(
     @Body() createCharacterData: CreateCharacterType,
@@ -44,11 +47,11 @@ export class CharacterController {
   }
 
   @UseGuards(RolesGuard)
-  @Roles('Admin', 'Developer', 'Editor')
+  @Roles('admin', 'developer', 'editor')
   @Put(':id')
   async updateCharacter(
     @Body() updateCharacterData: UpdateCharacterTypeWithoutId,
-    @Param('id') id: number,
+    @Param('id', ParseIntPipe) id: number,
   ): Promise<Character> {
     return this.characterService.updateCharacter({
       ...updateCharacterData,
@@ -57,9 +60,11 @@ export class CharacterController {
   }
 
   @UseGuards(RolesGuard)
-  @Roles('Admin', 'Developer', 'Editor')
+  @Roles('admin', 'developer', 'editor')
   @Delete(':id')
-  async deleteCharacter(@Param('id') id: number): Promise<Character> {
+  async deleteCharacter(
+    @Param('id', ParseIntPipe) id: number,
+  ): Promise<Character> {
     return this.characterService.deleteCharacter(id);
   }
 }

@@ -6,3 +6,7 @@ export type GetMoviesType = {
   genreIds?: number[];
   themeIds?: number[];
 };
+
+export type GetMoviesWithTranslationType = GetMoviesType & {
+  lang?: string;
+};

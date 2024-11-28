@@ -10,6 +10,7 @@ import {
   Delete,
   Get,
   Param,
+  ParseIntPipe,
   Post,
   Put,
   UseGuards,
@@ -20,26 +21,26 @@ export class ThemeController {
   constructor(private readonly themeService: ThemeService) {}
 
   @UseGuards(RolesGuard)
-  @Roles('Admin', 'Developer', 'Editor')
+  @Roles('admin', 'developer', 'editor')
   @Post()
   async createTheme(@Body() createThemeData: CreateThemeType) {
     return this.themeService.createTheme(createThemeData);
   }
 
   @UseGuards(RolesGuard)
-  @Roles('Admin', 'Developer', 'Editor')
+  @Roles('admin', 'developer', 'editor')
   @Put(':id')
   async updateTheme(
     @Body() updateThemeData: UpdateThemeType,
-    @Param('id') id: number,
+    @Param('id', ParseIntPipe) id: number,
   ) {
     return this.themeService.updateTheme({ ...updateThemeData, id: id });
   }
 
   @UseGuards(RolesGuard)
-  @Roles('Admin', 'Developer', 'Editor')
+  @Roles('admin', 'developer', 'editor')
   @Delete(':id')
-  async deleteTheme(@Param('id') id: number) {
+  async deleteTheme(@Param('id', ParseIntPipe) id: number) {
     return this.themeService.deleteTheme(id);
   }
 

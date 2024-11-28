@@ -3,7 +3,8 @@ import { createUpdateData } from '@common/utils/updateData.util';
 import { CastService } from '@modules/content/cast/cast.service';
 import { FranchiseService } from '@modules/content/franchise/franchise.service';
 import type { CreateGameType } from '@modules/content/game/types/createGame.type';
-import type { GetGamesType } from '@modules/content/game/types/getGames.type';
+import { GetGameWithTranslationType } from '@modules/content/game/types/getGame.type';
+import type { GetGamesWithTranslationType } from '@modules/content/game/types/getGames.type';
 import type { UpdateGameType } from '@modules/content/game/types/updateGame.type';
 import { Injectable } from '@nestjs/common';
 import { Game, GameListItem, Prisma } from '@prisma/client';
@@ -19,30 +20,52 @@ export class GameService {
   ) {}
 
   async getGame(
-    id: number,
-    userId?: number,
+    getGameData: GetGameWithTranslationType,
   ): Promise<Game & { gameListItem?: GameListItem }> {
+    const { id: id, userId: userId, lang = 'ru' } = getGameData;
+
     const existingGame = await this.prisma.game.findUnique({
-      where: { id: id },
+      where: { id },
     });
 
     if (!existingGame) {
       throw new Error('Game not found');
     }
 
+    const translations = existingGame.translations || {};
+    const translatedGame = {
+      ...existingGame,
+      title:
+        lang === 'ru'
+          ? existingGame.title
+          : translations[lang]?.title || existingGame.title,
+      description:
+        lang === 'ru'
+          ? existingGame.description
+          : translations[lang]?.description || existingGame.description,
+      translations: lang === 'ru' ? existingGame.translations : undefined,
+    };
+
     if (userId) {
       const gameListItem = await this.prisma.gameListItem.findUnique({
         where: { userId_gameId: { userId, gameId: id } },
       });
-      return { ...existingGame, gameListItem };
+      return { ...translatedGame, gameListItem };
     }
 
-    return existingGame;
+    return translatedGame;
   }
 
-  async getGames(getGamesData: GetGamesType): Promise<Game[]> {
-    const { page, pageSize, sortField, sortOrder, genreIds, themeIds } =
-      getGamesData;
+  async getGames(getGamesData: GetGamesWithTranslationType): Promise<Game[]> {
+    const {
+      page,
+      pageSize,
+      sortField,
+      sortOrder,
+      genreIds,
+      themeIds,
+      lang = 'ru',
+    } = getGamesData;
 
     const skip = (page - 1) * pageSize;
     const take = pageSize;
@@ -55,7 +78,7 @@ export class GameService {
       orderBy = { [sortField]: sortOrder };
     }
 
-    return this.prisma.game.findMany({
+    const games = await this.prisma.game.findMany({
       skip,
       take,
       orderBy,
@@ -66,6 +89,18 @@ export class GameService {
         ],
       },
     });
+
+    return games.map((game) => ({
+      ...game,
+      title:
+        lang === 'ru'
+          ? game.title
+          : (game.translations || {})[lang]?.title || game.title,
+      description:
+        lang === 'ru'
+          ? game.description
+          : (game.translations || {})[lang]?.description || game.description,
+    }));
   }
 
   async createGame(createGameData: CreateGameType): Promise<Game> {
@@ -82,8 +117,9 @@ export class GameService {
       franchise_ids,
       cast,
       status,
-      duration,
       ageRating,
+      links,
+      translations,
     } = createGameData;
 
     let posterPath = '';
@@ -102,8 +138,9 @@ export class GameService {
         posterPath: posterPath,
         release: release,
         status: status,
-        duration: duration,
         ageRating: ageRating,
+        links,
+        translations,
         developers: {
           connect: developers_ids.map((id) => ({ id })),
         },
@@ -125,7 +162,7 @@ export class GameService {
     await this.franchiseService.addToFranchises({
       franchiseIds: franchise_ids,
       contentId: game.id,
-      contentType: 'GAME',
+      genreType: 'game',
     });
 
     if (cast && cast.length > 0) {
@@ -151,8 +188,9 @@ export class GameService {
       franchise_ids,
       cast,
       status,
-      duration,
       ageRating,
+      links,
+      translations,
     } = updateGameData;
 
     const existingGame = await this.prisma.game.findUnique({ where: { id } });
@@ -175,9 +213,10 @@ export class GameService {
       description,
       release,
       status,
-      duration,
       ageRating,
       posterPath,
+      links,
+      translations,
       developers: developers_ids,
       publishers: publishers_ids,
       platforms: platforms_ids,

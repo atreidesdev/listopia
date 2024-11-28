@@ -12,6 +12,7 @@ import {
   Delete,
   Get,
   Param,
+  ParseIntPipe,
   Post,
   Put,
   Query,
@@ -26,38 +27,42 @@ export class GameController {
 
   @Get(':id')
   async getGame(
-    @Param('id') id: number,
+    @Param('id', ParseIntPipe) id: number,
     @CurrentUser() user: UserPayload,
+    @Query('lang') lang?: string,
   ): Promise<Game> {
-    return this.gameService.getGame(id, user?.id);
+    return this.gameService.getGame({ id, userId: user?.id, lang });
   }
 
   @Get()
-  async getGames(@Query() getGamesData: GetGamesType): Promise<Game[]> {
-    return this.gameService.getGames(getGamesData);
+  async getGames(
+    @Query() getGamesData: GetGamesType,
+    @Query('lang') lang?: string,
+  ): Promise<Game[]> {
+    return this.gameService.getGames({ ...getGamesData, lang });
   }
 
   @UseGuards(RolesGuard)
-  @Roles('Admin', 'Developer', 'Editor')
+  @Roles('admin', 'developer', 'editor')
   @Post()
   async createGame(@Body() createGameData: CreateGameType): Promise<Game> {
     return this.gameService.createGame(createGameData);
   }
 
   @UseGuards(RolesGuard)
-  @Roles('Admin', 'Developer', 'Editor')
+  @Roles('admin', 'developer', 'editor')
   @Put('id')
   async updateGame(
     @Body() updatePersonData: UpdateGameTypeWithoutId,
-    @Param('id') id: number,
+    @Param('id', ParseIntPipe) id: number,
   ): Promise<Game> {
     return this.gameService.updateGame({ ...updatePersonData, id: id });
   }
 
   @UseGuards(RolesGuard)
-  @Roles('Admin', 'Developer', 'Editor')
+  @Roles('admin', 'developer', 'editor')
   @Delete(':id')
-  async deleteGame(@Param('id') id: number): Promise<Game> {
+  async deleteGame(@Param('id', ParseIntPipe) id: number): Promise<Game> {
     return this.gameService.deleteGame(id);
   }
 }

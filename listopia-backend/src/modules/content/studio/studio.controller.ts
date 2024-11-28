@@ -10,6 +10,7 @@ import {
   Delete,
   Get,
   Param,
+  ParseIntPipe,
   Post,
   Put,
   Query,
@@ -23,7 +24,7 @@ export class StudioController {
   constructor(private readonly studioService: StudioService) {}
 
   @Get(':id')
-  async getStudio(@Param('id') id: number): Promise<Studio> {
+  async getStudio(@Param('id', ParseIntPipe) id: number): Promise<Studio> {
     return this.studioService.getStudio(id);
   }
 
@@ -33,7 +34,7 @@ export class StudioController {
   }
 
   @UseGuards(RolesGuard)
-  @Roles('Admin', 'Developer', 'Editor')
+  @Roles('admin', 'developer', 'editor')
   @Post()
   async createStudio(
     @Body() createStudioData: CreateStudioType,
@@ -42,19 +43,19 @@ export class StudioController {
   }
 
   @UseGuards(RolesGuard)
-  @Roles('Admin', 'Developer', 'Editor')
+  @Roles('admin', 'developer', 'editor')
   @Put(':id')
   async updateStudio(
     @Body() updateStudioData: UpdateStudioTypeWithoutId,
-    @Param('id') id: number,
+    @Param('id', ParseIntPipe) id: number,
   ): Promise<Studio> {
     return this.studioService.updateStudio({ ...updateStudioData, id: id });
   }
 
   @UseGuards(RolesGuard)
-  @Roles('Admin', 'Developer', 'Editor')
+  @Roles('admin', 'developer', 'editor')
   @Delete(':id')
-  async deleteStudio(@Param('id') id: number): Promise<Studio> {
+  async deleteStudio(@Param('id', ParseIntPipe) id: number): Promise<Studio> {
     return this.studioService.deleteStudio(id);
   }
 }

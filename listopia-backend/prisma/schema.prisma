@@ -8,100 +8,116 @@ generator client {
 }
 
 enum UserRole {
-  Standard
-  Admin
-  Editor
-  Developer
+  standard
+  admin
+  editor
+  developer
 }
 
 enum FriendRequestStatus {
-  PENDING
-  ACCEPTED
-  REJECTED
+  pending
+  accepted
+  rejected
+}
+
+enum GenreType {
+  book
+  movie
+  game
 }
 
 enum ContentType {
-  BOOK
-  MOVIE
-  GAME
+  book
+  movie
+  game
+  news
+  post
 }
 
 enum MediaType {
-  IMAGE
-  VIDEO
+  image
+  video
 }
 
 enum ListItemStatus {
-  PLANNED
-  WATCHED
-  WATHCING
-  REWATCHING
-  POSTPONED
-  DROPPED
+  planned
+  watched
+  watching
+  rewatching
+  postponed
+  dropped
 }
 
 enum BookStatus {
-  ANNOUNCED
-  WRITING
-  EDITING
-  AIRING
-  PUBLISHED
-  CANCELLED
-  UNKNOWN
+  announced
+  writing
+  editing
+  airing
+  published
+  cancelled
+  unknown
 }
 
 enum MovieStatus {
-  ANNOUNCED
-  IN_PRODUCTION
-  POST_PRODUCTION
-  RELEASED
-  ONGOING
-  COMPLETED
-  CANCELLED
-  UNKNOWN
+  announced
+  in_production
+  post_production
+  released
+  ongoing
+  complited
+  cancelled
+  unknown
 }
 
 enum GameStatus {
-  ANNOUNCED
-  IN_DEVELOPE
-  EARLY_ACCESS
-  RELEASED
-  CANCELLED
-  UNKNOWN
+  announced
+  in_develope
+  early_access
+  released
+  cancelled
+  unknown
 }
 
 enum MovieType {
-  LIVE_ACTION
-  ANIME
-  ANIMATION
+  live_action
+  anime
+  animation
 }
 
 enum PersonCareer {
-  ACTOR
-  DIRECTOR
-  AUTHOR
+  actor
+  director
+  author
 }
 
 enum RoleType {
-  LEAD
-  SUPPORTING
-  CAMEO
-  EXTRA
-  UNKNOWN
+  lead
+  supporting
+  cameo
+  extra
+  unknown
 }
 
 enum ChatParticipantRole {
-  Standard
-  Admin
+  standard
+  admin
 }
 
 enum AgeRating {
-  G // подходит для всех возрастов
-  PG // некоторый материал может быть не подходящим для детей
-  PG_13 // некоторый материал может быть неуместным для детей младше 13 лет
-  R // для лиц младше 17 лет требуется сопровождение родителей или взрослого опекуна
-  NC_17 // лица младше 17 лет не допускаются
-  NR // информация о рейтинге недоступна или не применима
+  g // подходит для всех возрастов
+  pg // некоторый материал может быть не подходящим для детей
+  pg_13 // некоторый материал может быть неуместным для детей младше 13 лет
+  r // для лиц младше 17 лет требуется сопровождение родителей или взрослого опекуна
+  nc_17 // лица младше 17 лет не допускаются
+  unknown // информация о рейтинге недоступна или не применима
+}
+
+enum CollectionVisibility {
+  private
+  public
+  friendsOnly
+  specificFriends
+  linkOnly
 }
 
 model User {
@@ -117,7 +133,9 @@ model User {
   avatarPath   String?
   username     String   @unique
   profileName  String
-  role         UserRole @default(Standard)
+  role         UserRole @default(standard)
+
+  loginAttempts LoginAttempt[]
 
   friends                User[]            @relation("Friendship")
   friendOf               User[]            @relation("Friendship")
@@ -140,6 +158,20 @@ model User {
   sentDirectMessages     DirectMessage[]   @relation("SentDirectMessages")
   receivedDirectMessages DirectMessage[]   @relation("ReceivedDirectMessages")
   sentChatMessages       ChatMessage[]     @relation("SentChatMessages")
+}
+
+model LoginAttempt {
+  id              Int       @id @default(autoincrement())
+  ipAddress       String
+  attemptCount    Int       @default(0)
+  lastAttemptTime DateTime  @default(now())
+  blockEndTime    DateTime?
+  lockMultiplier  Int       @default(1)
+
+  userId Int
+  user   User @relation(fields: [userId], references: [id])
+
+  @@index([ipAddress])
 }
 
 model RefreshToken {
@@ -254,9 +286,9 @@ model Genre {
   updatedAt  DateTime @default(now()) @updatedAt
   visitCount Int      @default(0)
 
-  name        String        @unique
+  name        String      @unique
   description String?
-  genreTypes  ContentType[]
+  genreTypes  GenreType[]
 
   books  Book[]
   movies Movie[]
@@ -319,7 +351,7 @@ model BookCast {
   roleName      String?
   roleActor     String?
   rolePhotoPath String?
-  roleType      RoleType @default(UNKNOWN)
+  roleType      RoleType @default(unknown)
 
   book      Book       @relation(fields: [bookId], references: [id])
   character Character? @relation(fields: [characterId], references: [id], onDelete: Cascade)
@@ -338,7 +370,7 @@ model MovieCast {
   roleName      String?
   roleActor     String?
   rolePhotoPath String?
-  roleType      RoleType @default(UNKNOWN)
+  roleType      RoleType @default(unknown)
 
   movie     Movie      @relation(fields: [movieId], references: [id])
   character Character? @relation(fields: [characterId], references: [id], onDelete: Cascade)
@@ -357,7 +389,7 @@ model GameCast {
   roleName      String?
   roleActor     String?
   rolePhotoPath String?
-  roleType      RoleType @default(UNKNOWN)
+  roleType      RoleType @default(unknown)
 
   game      Game       @relation(fields: [gameId], references: [id])
   character Character? @relation(fields: [characterId], references: [id], onDelete: Cascade)
@@ -379,15 +411,17 @@ model Book {
   authors           Person[]        @relation("PersonBooks")
   posterPath        String?
   release           DateTime?
-  status            BookStatus      @default(UNKNOWN)
-  readingHoursCount Int             @default(0)
-  ageRating         AgeRating       @default(NR)
+  status            BookStatus      @default(unknown)
+  readingHoursCount Int?
+  ageRating         AgeRating       @default(unknown)
+  rating            Float?
   genres            Genre[]
   themes            Theme[]
   BookFranchise     BookFranchise[]
   BookCast          BookCast[]
 
-  links Json?
+  links        Json?
+  translations Json?
 
   BookListItem   BookListItem[]
   CollectionBook CollectionBook[]
@@ -411,8 +445,6 @@ model BookComment {
   parentId Int?
 
   replies BookComment[] @relation("CommentReplies")
-  Movie   Movie?        @relation(fields: [movieId], references: [id])
-  movieId Int?
 }
 
 model SimilarBook {
@@ -435,28 +467,29 @@ model Movie {
 
   title          String
   description    String?
-  MovieType      MovieType        @default(LIVE_ACTION)
+  MovieType      MovieType        @default(live_action)
   posterPath     String?
   directors      Person[]         @relation("DirectorsMovies")
   release        DateTime?
-  status         MovieStatus      @default(UNKNOWN)
-  duration       Int              @default(0)
+  status         MovieStatus      @default(unknown)
+  duration       Int?
   isSeries       Boolean          @default(false)
   seriesCount    Int              @default(1)
-  ageRating      AgeRating        @default(NR)
+  ageRating      AgeRating        @default(unknown)
+  rating         Float?
   genres         Genre[]
   themes         Theme[]
   studios        Studio[]         @relation("MovieStudios")
   MovieFranchise MovieFranchise[]
   MovieCast      MovieCast[]
 
-  links Json?
+  links        Json?
+  translations Json?
 
   MovieListItem   MovieListItem[]
   CollectionMovie CollectionMovie[]
   SimilarMovie    SimilarMovie[]    @relation("SimilarMovies")
   SimilarToMovie  SimilarMovie[]    @relation("SimilarToMovies")
-  BookComment     BookComment[]
   MovieComment    MovieComment[]
 }
 
@@ -513,10 +546,10 @@ model Game {
   description   String?
   posterPath    String?
   developers    Developer[]
-  duration      Int             @default(0)
   release       DateTime?
-  status        GameStatus      @default(UNKNOWN)
-  ageRating     AgeRating       @default(NR)
+  status        GameStatus      @default(unknown)
+  ageRating     AgeRating       @default(unknown)
+  rating        Float?
   genres        Genre[]
   themes        Theme[]
   platforms     Platform[]
@@ -524,7 +557,8 @@ model Game {
   GameFranchise GameFranchise[]
   GameCast      GameCast[]
 
-  links Json?
+  links        Json?
+  translations Json?
 
   GameListItem   GameListItem[]
   CollectionGame CollectionGame[]
@@ -601,23 +635,34 @@ model GameComment {
   replies GameComment[] @relation("CommentReplies")
 }
 
+model History {
+  id        Int       @id @default(autoincrement())
+  userId    Int
+  genreType GenreType
+  text      String
+  createdAt DateTime  @default(now())
+
+  @@index([userId])
+}
+
 model BookListItem {
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
 
-  status      ListItemStatus
+  status      ListItemStatus @default(planned)
   note        String?
   repeatCount Int?           @default(0)
   current     Int            @default(0) // текущая страница
   maxPages    Int            @default(1) // максимальная страница
-  rating      Int? // 1-100
-  review      String?
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
   book Book @relation(fields: [bookId], references: [id])
 
   userId Int
   bookId Int
+
+  rating BookListItemRating?
+  review BookListItemReview?
 
   @@id([userId, bookId])
 }
@@ -626,18 +671,19 @@ model MovieListItem {
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
 
-  status      ListItemStatus
+  status      ListItemStatus @default(planned)
   note        String?
   repeatCount Int?           @default(0)
   current     Int            @default(0) // серия
-  rating      Int? // 1-100
-  review      String?
 
   user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
   movie Movie @relation(fields: [movieId], references: [id])
 
   userId  Int
   movieId Int
+
+  rating MovieListItemRating?
+  review MovieListItemReview?
 
   @@id([userId, movieId])
 }
@@ -646,12 +692,10 @@ model GameListItem {
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
 
-  status      ListItemStatus
+  status      ListItemStatus @default(planned)
   note        String?
   repeatCount Int?           @default(0)
   current     Int            @default(0) // время прохождения в часах
-  rating      Int? // 1-100
-  review      String?
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
   game Game @relation(fields: [gameId], references: [id])
@@ -659,7 +703,88 @@ model GameListItem {
   userId Int
   gameId Int
 
+  rating GameListItemRating?
+  review GameListItemReview?
+
   @@id([userId, gameId])
+}
+
+model BookListItemRating {
+  id        Int      @id @default(autoincrement())
+  rating    Int // 1-100
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+
+  bookListItem BookListItem @relation(fields: [userId, bookId], references: [userId, bookId])
+  userId       Int
+  bookId       Int
+
+  @@unique([userId, bookId])
+}
+
+model MovieListItemRating {
+  id        Int      @id @default(autoincrement())
+  rating    Int // 1-100
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+
+  movieListItem MovieListItem @relation(fields: [userId, movieId], references: [userId, movieId])
+  userId        Int
+  movieId       Int
+
+  @@unique([userId, movieId])
+}
+
+model GameListItemRating {
+  id        Int      @id @default(autoincrement())
+  rating    Int // 1-100
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+
+  gameListItem GameListItem @relation(fields: [userId, gameId], references: [userId, gameId])
+  userId       Int
+  gameId       Int
+
+  @@unique([userId, gameId])
+}
+
+model BookListItemReview {
+  id        Int      @id @default(autoincrement())
+  review    String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+
+  bookListItem BookListItem @relation(fields: [userId, bookId], references: [userId, bookId])
+  userId       Int
+  bookId       Int
+
+  @@unique([userId, bookId])
+}
+
+model MovieListItemReview {
+  id        Int      @id @default(autoincrement())
+  review    String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+
+  movieListItem MovieListItem @relation(fields: [userId, movieId], references: [userId, movieId])
+  userId        Int
+  movieId       Int
+
+  @@unique([userId, movieId])
+}
+
+model GameListItemReview {
+  id        Int      @id @default(autoincrement())
+  review    String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+
+  gameListItem GameListItem @relation(fields: [userId, gameId], references: [userId, gameId])
+  userId       Int
+  gameId       Int
+
+  @@unique([userId, gameId])
 }
 
 model BookFranchise {
@@ -710,9 +835,9 @@ model Collection {
   posterPath  String?
   name        String
   description String?
-  user        User    @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  userId Int
+  user        User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId      Int
+  visibility  CollectionVisibility @default(public)
 
   books  CollectionBook[]
   movies CollectionMovie[]
@@ -764,12 +889,11 @@ model Post {
   updatedAt  DateTime @updatedAt
   visitCount Int      @default(0)
 
-  title String
-  text  String
+  title      String
+  source     Json
+  posterPath String
 
-  user       User         @relation(fields: [userId], references: [id], onDelete: Cascade)
-  PostsMedia PostsMedia[]
-
+  user        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId      Int
   PostComment PostComment[]
 }
@@ -797,11 +921,11 @@ model News {
   updatedAt  DateTime @updatedAt
   visitCount Int      @default(0)
 
-  title String
-  text  String
+  title      String
+  source     Json
+  posterPath String
 
-  user      User        @relation(fields: [userId], references: [id], onDelete: Cascade)
-  NewsMedia NewsMedia[]
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   userId      Int
   NewsComment NewsComment[]
@@ -824,26 +948,45 @@ model NewsComment {
   replies NewsComment[] @relation("CommentReplies")
 }
 
-model NewsMedia {
-  id        Int      @id @default(autoincrement())
-  createdAt DateTime @default(now())
-  updatedAt DateTime @default(now()) @updatedAt
-
-  mediaPath String
-  mediaType MediaType
-  news      News?     @relation(fields: [newsId], references: [id], onDelete: Cascade, map: "News_Media")
-
-  newsId Int
+model Dumb {
+  id   Int         @id
+  type ContentType
 }
 
-model PostsMedia {
-  id        Int      @id @default(autoincrement())
-  createdAt DateTime @default(now())
-  updatedAt DateTime @default(now()) @updatedAt
+model Article {
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  id         Int       @id @default(autoincrement())
+  title      String
+  sections   Section[]
+  posterPath String
+}
 
-  mediaPath String
-  mediaType MediaType
-  post      Post?     @relation(fields: [postId], references: [id], onDelete: Cascade, map: "Posts_Media")
+model Section {
+  id              Int              @id @default(autoincrement())
+  articleId       Int
+  article         Article          @relation(fields: [articleId], references: [id])
+  backgroundColor String? // Цвет фона секции (опционально)
+  elements        ArticleElement[] // Секция содержит элементы
+  order           Int // Порядковый номер секции в статье
+}
 
-  postId Int
+model ArticleElement {
+  id          Int         @id @default(autoincrement())
+  sectionId   Int
+  section     Section     @relation(fields: [sectionId], references: [id])
+  order       Int // Порядковый номер элемента в секции
+  elementType ElementType // Тип элемента
+  content     String? // Общее поле для контента (заголовки, подзаголовки, текст)
+  posterPath  String? // URL изображения для типа IMAGE
+  caption     String? // Подпись для изображения
+}
+
+enum ElementType {
+  TITLE
+  SUBTITLE
+  TEXT
+  IMAGE
+  SLIDER
+  BLOCK
 }

@@ -12,6 +12,7 @@ import {
   Delete,
   Get,
   Param,
+  ParseIntPipe,
   Post,
   Put,
   Query,
@@ -26,19 +27,23 @@ export class BookController {
 
   @Get(':id')
   async getBook(
-    @Param('id') id: number,
+    @Param('id', ParseIntPipe) id: number,
+    @Query('lang') lang: string,
     @CurrentUser() user: UserPayload,
   ): Promise<Book> {
-    return this.bookService.getBook(id, user?.id);
+    return this.bookService.getBook({ id, userId: user?.id, lang });
   }
 
   @Get()
-  async getBooks(@Query() getBooksData: GetBooksType): Promise<Book[]> {
-    return this.bookService.getBooks(getBooksData);
+  async getBooks(
+    @Query() getBooksData: GetBooksType,
+    @Query('lang') lang?: string,
+  ): Promise<Book[]> {
+    return this.bookService.getBooks({ ...getBooksData, lang });
   }
 
   @UseGuards(RolesGuard)
-  @Roles('Admin', 'Developer', 'Editor')
+  @Roles('admin', 'developer', 'editor')
   @Post()
   async createBook(@Body() createBookData: CreateBookType): Promise<Book> {
     return this.bookService.createBook(createBookData);
@@ -46,16 +51,16 @@ export class BookController {
 
   @Put(':id')
   async updateBook(
-    @Param('id') id: number,
+    @Param('id', ParseIntPipe) id: number,
     @Body() updateBookData: UpdateBookTypeWithoutId,
   ): Promise<Book> {
     return this.bookService.updateBook({ ...updateBookData, id: id });
   }
 
   @UseGuards(RolesGuard)
-  @Roles('Admin', 'Developer', 'Editor')
+  @Roles('admin', 'developer', 'editor')
   @Delete(':id')
-  async deleteBook(@Param('id') id: number): Promise<Book> {
+  async deleteBook(@Param('id', ParseIntPipe) id: number): Promise<Book> {
     return this.bookService.deleteBook(id);
   }
 }

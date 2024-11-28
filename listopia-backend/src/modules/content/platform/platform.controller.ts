@@ -10,6 +10,7 @@ import {
   Delete,
   Get,
   Param,
+  ParseIntPipe,
   Post,
   Put,
   Query,
@@ -23,7 +24,7 @@ export class PlatformController {
   constructor(private readonly platformService: PlatformService) {}
 
   @Get(':id')
-  async getPlatform(@Param('id') id: number): Promise<Platform> {
+  async getPlatform(@Param('id', ParseIntPipe) id: number): Promise<Platform> {
     return this.platformService.getPlatform(id);
   }
 
@@ -35,7 +36,7 @@ export class PlatformController {
   }
 
   @UseGuards(RolesGuard)
-  @Roles('Admin', 'Developer', 'Editor')
+  @Roles('admin', 'developer', 'editor')
   @Post()
   async createPlatform(
     @Body() createPlatformData: CreatePlatformType,
@@ -44,11 +45,11 @@ export class PlatformController {
   }
 
   @UseGuards(RolesGuard)
-  @Roles('Admin', 'Developer', 'Editor')
+  @Roles('admin', 'developer', 'editor')
   @Put(':id')
   async updatePlatform(
     @Body() updatePlatformData: UpdatePlatformTypeWithoutId,
-    @Param('id') id: number,
+    @Param('id', ParseIntPipe) id: number,
   ): Promise<Platform> {
     return this.platformService.updatePlatform({
       ...updatePlatformData,
@@ -57,9 +58,11 @@ export class PlatformController {
   }
 
   @UseGuards(RolesGuard)
-  @Roles('Admin', 'Developer', 'Editor')
+  @Roles('admin', 'developer', 'editor')
   @Delete(':id')
-  async deletePlatform(@Param('id') id: number): Promise<Platform> {
+  async deletePlatform(
+    @Param('id', ParseIntPipe) id: number,
+  ): Promise<Platform> {
     return this.platformService.deletePlatform(id);
   }
 }

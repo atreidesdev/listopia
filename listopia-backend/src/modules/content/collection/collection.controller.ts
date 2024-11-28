@@ -11,11 +11,12 @@ import {
   Delete,
   Get,
   Param,
+  ParseIntPipe,
   Post,
   Put,
   UseGuards,
 } from '@nestjs/common';
-import { ContentType } from '@prisma/client';
+import { GenreType } from '@prisma/client';
 import { CollectionService } from './collection.service';
 
 @Controller('collection')
@@ -23,7 +24,7 @@ export class CollectionController {
   constructor(private readonly collectionService: CollectionService) {}
 
   @Get(':id')
-  async getCollection(@Param('id') id: number) {
+  async getCollection(@Param('id', ParseIntPipe) id: number) {
     return this.collectionService.getCollection(id);
   }
 
@@ -42,7 +43,7 @@ export class CollectionController {
   @UseGuards(JwtAuthGuard)
   @Put(':id')
   async updateCollection(
-    @Param('id') collectionId: number,
+    @Param('id', ParseIntPipe) collectionId: number,
     @Body() data: CollectionUpdateType,
     @CurrentUser() user: UserPayload,
   ) {
@@ -61,7 +62,7 @@ export class CollectionController {
   @UseGuards(JwtAuthGuard)
   @Delete(':id')
   async deleteCollection(
-    @Param('id') collectionId: number,
+    @Param('id', ParseIntPipe) collectionId: number,
     @CurrentUser() user: UserPayload,
   ) {
     return this.collectionService.deleteCollection({
@@ -71,32 +72,32 @@ export class CollectionController {
   }
 
   @UseGuards(JwtAuthGuard)
-  @Post(':id/:contentType/:contentId')
+  @Post(':id/:genreType/:contentId')
   async addItemToCollection(
-    @Param('id') collectionId: number,
-    @Param('contentType') contentType: ContentType,
-    @Param('contentId') contentId: number,
+    @Param('id', ParseIntPipe) collectionId: number,
+    @Param('genreType') genreType: GenreType,
+    @Param('contentId', ParseIntPipe) contentId: number,
     @CurrentUser() user: UserPayload,
   ) {
     return this.collectionService.addItemToCollection({
       collectionId,
-      contentType,
+      genreType,
       contentId,
       userId: user.id,
     });
   }
 
   @UseGuards(JwtAuthGuard)
-  @Delete(':id/:contentType/:contentId')
+  @Delete(':id/:genreType/:contentId')
   async deleteItemFromCollection(
-    @Param('id') collectionId: number,
-    @Param('contentType') contentType: ContentType,
-    @Param('contentId') contentId: number,
+    @Param('id', ParseIntPipe) collectionId: number,
+    @Param('genreType') genreType: GenreType,
+    @Param('contentId', ParseIntPipe) contentId: number,
     @CurrentUser() user: UserPayload,
   ) {
     return this.collectionService.deleteItemFromCollection({
       collectionId,
-      contentType,
+      genreType,
       contentId,
       userId: user.id,
     });

@@ -12,6 +12,7 @@ import {
   Delete,
   Get,
   Param,
+  ParseIntPipe,
   Post,
   Put,
   Query,
@@ -26,38 +27,42 @@ export class MovieController {
 
   @Get(':id')
   async getMovie(
-    @Param('id') id: number,
+    @Param('id', ParseIntPipe) id: number,
     @CurrentUser() user: UserPayload,
+    @Query('lang') lang?: string,
   ): Promise<Movie> {
-    return this.movieService.getMovie(id, user?.id);
+    return this.movieService.getMovie({ id, userId: user?.id, lang });
   }
 
   @Get()
-  async getMovies(@Query() getMoviesData: GetMoviesType): Promise<Movie[]> {
-    return this.movieService.getMovies(getMoviesData);
+  async getMovies(
+    @Query() getMoviesData: GetMoviesType,
+    @Query('lang') lang?: string,
+  ): Promise<Movie[]> {
+    return this.movieService.getMovies({ ...getMoviesData, lang });
   }
 
   @UseGuards(RolesGuard)
-  @Roles('Admin', 'Developer', 'Editor')
+  @Roles('admin', 'developer', 'editor')
   @Post()
   async createMovie(@Body() createMovieData: CreateMovieType): Promise<Movie> {
     return this.movieService.createMovie(createMovieData);
   }
 
   @UseGuards(RolesGuard)
-  @Roles('Admin', 'Developer', 'Editor')
+  @Roles('admin', 'developer', 'editor')
   @Put('id')
   async updateMovie(
     @Body() updatePersonData: UpdateMovieTypeWithoutId,
-    @Param('id') id: number,
+    @Param('id', ParseIntPipe) id: number,
   ): Promise<Movie> {
     return this.movieService.updateMovie({ ...updatePersonData, id: id });
   }
 
   @UseGuards(RolesGuard)
-  @Roles('Admin', 'Developer', 'Editor')
+  @Roles('admin', 'developer', 'editor')
   @Delete(':id')
-  async deleteMovie(@Param('id') id: number): Promise<Movie> {
+  async deleteMovie(@Param('id', ParseIntPipe) id: number): Promise<Movie> {
     return this.movieService.deleteMovie(id);
   }
 }

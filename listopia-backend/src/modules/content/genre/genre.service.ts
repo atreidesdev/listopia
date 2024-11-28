@@ -1,7 +1,7 @@
 import type { CreateGenreType } from '@modules/content/genre/types/createGenre.type';
 import type { UpdateGenreType } from '@modules/content/genre/types/updateGenre.type';
 import { Injectable } from '@nestjs/common';
-import { ContentType, Genre } from '@prisma/client';
+import { GenreType, Genre } from '@prisma/client';
 import { PrismaService } from '@prismaPath/prisma.service';
 
 @Injectable()
@@ -12,7 +12,7 @@ export class GenreService {
     return this.prisma.genre.findMany();
   }
 
-  async getGenresByType(type: ContentType): Promise<Genre[]> {
+  async getGenresByType(type: GenreType): Promise<Genre[]> {
     return this.prisma.genre.findMany({
       where: {
         genreTypes: {

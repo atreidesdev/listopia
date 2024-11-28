@@ -11,6 +11,7 @@ import {
   Delete,
   Get,
   Param,
+  ParseIntPipe,
   Post,
   Put,
   Query,
@@ -24,7 +25,7 @@ export class PersonController {
   constructor(private readonly personService: PersonService) {}
 
   @Get(':id')
-  async getPerson(@Param('id') id: number): Promise<Person> {
+  async getPerson(@Param('id', ParseIntPipe) id: number): Promise<Person> {
     return this.personService.getPerson(id);
   }
 
@@ -45,7 +46,7 @@ export class PersonController {
   }
 
   @UseGuards(RolesGuard)
-  @Roles('Admin', 'Developer', 'Editor')
+  @Roles('admin', 'developer', 'editor')
   @Post()
   async createPerson(
     @Body() createPersonData: CreatePersonType,
@@ -54,19 +55,19 @@ export class PersonController {
   }
 
   @UseGuards(RolesGuard)
-  @Roles('Admin', 'Developer', 'Editor')
+  @Roles('admin', 'developer', 'editor')
   @Put('id')
   async updatePerson(
     @Body() updatePersonData: UpdatePersonTypeWithoutId,
-    @Param('id') id: number,
+    @Param('id', ParseIntPipe) id: number,
   ): Promise<Person> {
     return this.personService.updatePerson({ ...updatePersonData, id: id });
   }
 
   @UseGuards(RolesGuard)
-  @Roles('Admin', 'Developer', 'Editor')
+  @Roles('admin', 'developer', 'editor')
   @Delete(':id')
-  async deletePerson(@Param('id') id: number): Promise<Person> {
+  async deletePerson(@Param('id', ParseIntPipe) id: number): Promise<Person> {
     return this.personService.deletePerson(id);
   }
 }

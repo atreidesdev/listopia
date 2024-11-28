@@ -16,16 +16,6 @@ export class UserService {
     });
   }
 
-  async updateUser(
-    id: number,
-    data: { email?: string; name?: string },
-  ): Promise<User> {
-    return this.prisma.user.update({
-      where: { id },
-      data,
-    });
-  }
-
   async deactivateUser(id: number): Promise<User> {
     return this.prisma.user.update({
       where: { id },

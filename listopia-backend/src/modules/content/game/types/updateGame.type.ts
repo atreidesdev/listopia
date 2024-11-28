@@ -1,4 +1,5 @@
 import { UpdateCastType } from '@modules/content/cast/types/updateCast.type';
+import { GameTranslationType } from '@modules/content/game/types/createGame.type';
 import { AgeRating, GameStatus } from '@prisma/client';
 
 export type UpdateGameType = {
@@ -12,12 +13,12 @@ export type UpdateGameType = {
   release?: Date;
   ageRating?: AgeRating;
   status?: GameStatus;
-  duration?: number;
   genres_ids?: number[];
   themes_ids?: number[];
   franchise_ids?: number[];
   cast?: UpdateCastType[];
   links?: Record<string, string>;
+  translations?: Record<string, GameTranslationType>;
 };
 
 export type UpdateGameTypeWithoutId = Omit<UpdateGameType, 'id'>;

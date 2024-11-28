@@ -1,6 +1,11 @@
 import { CreateCastDataWithoutId } from '@modules/content/cast/types/createCast.type';
 import { AgeRating, MovieStatus, MovieType } from '@prisma/client';
 
+export type MovieTranslationType = {
+  title: string;
+  description?: string;
+};
+
 export type CreateMovieType = {
   title: string;
   description?: string;
@@ -19,4 +24,5 @@ export type CreateMovieType = {
   franchise_ids?: number[];
   cast?: CreateCastDataWithoutId[];
   links?: Record<string, string>;
+  translations?: Record<string, MovieTranslationType>;
 };

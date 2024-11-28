@@ -15,11 +15,14 @@ import {
   Delete,
   Get,
   Param,
+  ParseIntPipe,
   Post,
   Put,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
-import { ContentType, ListItemStatus } from '@prisma/client';
+import { GenreType, ListItemStatus } from '@prisma/client';
+import { HistoryInterceptor } from '../../../middleware/history/history.interceptor';
 import { ListService } from './list.service';
 
 @Controller('list')
@@ -27,121 +30,122 @@ export class ListController {
   constructor(private readonly listService: ListService) {}
 
   @UseGuards(JwtAuthGuard)
-  @Put(':contentType/:contentId/note')
-  async UpdateNote(
-    @Param('contentType') contentType: ContentType,
-    @Param('contentId') contentId: number,
+  @Put(':genreType/:contentId/note')
+  async updateNote(
+    @Param('genreType') genreType: GenreType,
+    @Param('contentId', ParseIntPipe) contentId: number,
     @Body()
-    data: Omit<ListItemNoteType, 'userId' | 'contentType' | 'contentId'>,
+    data: Omit<ListItemNoteType, 'userId' | 'genreType' | 'contentId'>,
     @CurrentUser() user: UserPayload,
   ) {
     const userId = user.id;
-    return this.listService.UpdateNote({
+    return this.listService.updateNote({
       ...data,
       userId,
-      contentType,
+      genreType,
       contentId,
     });
   }
 
   @UseGuards(JwtAuthGuard)
-  @Put(':contentType/:contentId/rating')
-  async UpdateRating(
-    @Param('contentType') contentType: ContentType,
-    @Param('contentId') contentId: number,
+  @Put(':genreType/:contentId/rating')
+  async updateRating(
+    @Param('genreType') genreType: GenreType,
+    @Param('contentId', ParseIntPipe) contentId: number,
     @Body()
-    data: Omit<ListItemRatingType, 'userId' | 'contentType' | 'contentId'>,
+    data: Omit<ListItemRatingType, 'userId' | 'genreType' | 'contentId'>,
     @CurrentUser() user: UserPayload,
   ) {
     const userId = user.id;
-    return this.listService.UpdateRating({
+    return this.listService.updateRating({
       ...data,
       userId,
-      contentType,
+      genreType,
       contentId,
     });
   }
 
   @UseGuards(JwtAuthGuard)
-  @Put(':contentType/:contentId/review')
-  async UpdateReview(
-    @Param('contentType') contentType: ContentType,
-    @Param('contentId') contentId: number,
+  @Put(':genreType/:contentId/review')
+  async updateReview(
+    @Param('genreType') genreType: GenreType,
+    @Param('contentId', ParseIntPipe) contentId: number,
     @Body()
-    data: Omit<ListItemReviewType, 'userId' | 'contentType' | 'contentId'>,
+    data: Omit<ListItemReviewType, 'userId' | 'genreType' | 'contentId'>,
     @CurrentUser() user: UserPayload,
   ) {
     const userId = user.id;
-    return this.listService.UpdateReview({
+    return this.listService.updateReview({
       ...data,
       userId,
-      contentType,
+      genreType,
       contentId,
     });
   }
 
   @UseGuards(JwtAuthGuard)
-  @Put(':contentType/:contentId/current')
-  async UpdateCurrent(
-    @Param('contentType') contentType: ContentType,
-    @Param('contentId') contentId: number,
+  @Put(':genreType/:contentId/current')
+  async updateCurrent(
+    @Param('genreType') genreType: GenreType,
+    @Param('contentId', ParseIntPipe) contentId: number,
     @Body()
-    data: Omit<ListItemCurrentType, 'userId' | 'contentType' | 'contentId'>,
+    data: Omit<ListItemCurrentType, 'userId' | 'genreType' | 'contentId'>,
     @CurrentUser() user: UserPayload,
   ) {
     const userId = user.id;
-    return this.listService.UpdateCurrent({
+    return this.listService.updateCurrent({
       ...data,
       userId,
-      contentType,
+      genreType,
       contentId,
     });
   }
 
   @UseGuards(JwtAuthGuard)
-  @Put(':contentType/:contentId/maxPages')
-  async UpdateMaxPages(
-    @Param('contentType') contentType: ContentType,
-    @Param('contentId') contentId: number,
+  @Put(':genreType/:contentId/maxPages')
+  async updateMaxPages(
+    @Param('genreType') genreType: GenreType,
+    @Param('contentId', ParseIntPipe) contentId: number,
     @Body()
-    data: Omit<ListBookMaxPagesType, 'userId' | 'contentType' | 'contentId'>,
+    data: Omit<ListBookMaxPagesType, 'userId' | 'genreType' | 'contentId'>,
     @CurrentUser() user: UserPayload,
   ) {
     const userId = user.id;
-    return this.listService.UpdateMaxPages({
+    return this.listService.updateMaxPages({
       ...data,
       userId,
-      contentType,
+      genreType,
       contentId,
     });
   }
 
+  @UseInterceptors(HistoryInterceptor)
   @UseGuards(JwtAuthGuard)
-  @Post(':contentType/:contentId')
+  @Post(':genreType/:contentId')
   async addOrUpdateListItem(
-    @Param('contentType') contentType: ContentType,
-    @Param('contentId') contentId: number,
-    @Body() data: Omit<ListItemType, 'userId' | 'contentType' | 'contentId'>,
+    @Param('genreType') genreType: GenreType,
+    @Param('contentId', ParseIntPipe) contentId: number,
+    @Body() data: Omit<ListItemType, 'userId' | 'genreType' | 'contentId'>,
     @CurrentUser() user: UserPayload,
   ) {
     const userId = user.id;
     return this.listService.addOrUpdateListItem({
       ...data,
       userId,
-      contentType,
+      genreType,
       contentId,
     });
   }
 
   @UseGuards(JwtAuthGuard)
-  @Delete(':contentType/:contentId')
+  @Delete(':genreType/:contentId')
   async deleteListItem(
-    @Param('contentType') contentType: ContentType,
-    @Param('contentId') contentId: number,
+    @Param('genreType') genreType: GenreType,
+    @Param('contentId', ParseIntPipe) contentId: number,
     @CurrentUser() user: UserPayload,
   ) {
     const userId = user.id;
-    return this.listService.deleteListItem({ userId, contentType, contentId });
+    return this.listService.deleteListItem({ userId, genreType, contentId });
   }
 
   @UseGuards(JwtAuthGuard)
@@ -152,16 +156,16 @@ export class ListController {
   }
 
   @UseGuards(JwtAuthGuard)
-  @Get(':contentType/:status')
+  @Get(':genreType/:status')
   async getListItemsByTypeAndStatus(
-    @Param('contentType') contentType: ContentType,
+    @Param('genreType') genreType: GenreType,
     @Param('status') status: ListItemStatus,
     @CurrentUser() user: UserPayload,
   ) {
     const userId = user.id;
     return this.listService.getListItemsByTypeAndStatus({
       userId,
-      contentType,
+      genreType,
       status,
     });
   }

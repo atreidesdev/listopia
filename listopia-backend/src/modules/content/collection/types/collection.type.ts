@@ -1,4 +1,11 @@
-import { Book, Collection, ContentType, Game, Movie } from '@prisma/client';
+import {
+  Book,
+  Collection,
+  CollectionVisibility,
+  Game,
+  GenreType,
+  Movie,
+} from '@prisma/client';
 
 export type CollectionWithItemsType = Collection & {
   books: Book[];
@@ -9,7 +16,7 @@ export type CollectionWithItemsType = Collection & {
 export type CollectionItem = {
   userId: number;
   collectionId: number;
-  contentType: ContentType;
+  genreType: GenreType;
   contentId: number;
 };
 
@@ -26,4 +33,5 @@ export type CollectionUpdateType = {
   name?: string;
   description?: string;
   poster?: Express.Multer.File;
+  visibility: CollectionVisibility;
 };

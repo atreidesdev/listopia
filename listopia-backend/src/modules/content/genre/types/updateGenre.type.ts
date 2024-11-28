@@ -1,10 +1,10 @@
-import { ContentType } from '@prisma/client';
+import { GenreType } from '@prisma/client';
 
 export type UpdateGenreType = {
   id: number;
   name?: string;
   description?: string;
-  genreTypes?: ContentType[];
+  genreTypes?: GenreType[];
 };
 
 export type UpdateGenreTypeWithoutId = Omit<UpdateGenreType, 'id'>;

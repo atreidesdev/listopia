@@ -1,8 +1,8 @@
-import { ContentType } from '@prisma/client';
+import { GenreType } from '@prisma/client';
 
 export type FranchiseItemType = {
   franchiseId: number;
-  contentType: ContentType;
+  genreType: GenreType;
   contentId: number;
 };
 
